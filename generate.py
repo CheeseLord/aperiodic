@@ -139,46 +139,83 @@ def generateShape():
     return shape
 
 
+def generateAllShapes():
+    shape = [
+        ((0, 0, 0), (1, 0, 0)),
+        ((0, 0, 0), (1, 1, 1)),
+    ]
+    shapes = _generateHelper(shape, 2, 3)
+    return [list(y) for y in {tuple(sorted(x)) for x in shapes}]
+
+
+def _generateHelper(shape, o, t):
+    if o == t == 0:
+        return [shape]
+
+    neighbors = set()
+    for x in shape:
+        neighbors = neighbors.union(getNeighbors(*x))
+    neighbors = neighbors.difference(shape)
+
+    shapes = []
+    for other in neighbors:
+        isOct = (0 in other[1])
+        if isOct and o > 0:
+            shapes += _generateHelper(shape + [other], o - 1, t)
+        if not isOct and t > 0:
+            shapes += _generateHelper(shape + [other], o, t - 1)
+
+    return shapes
+
+
 if __name__ == '__main__':
+    shapes = generateAllShapes()
+    print(len(shapes))
+    print(shapes[0])
+
+    """
+    rows, cols = 1, 1
     fig = plt.figure()
-    ax = fig.add_subplot(111, projection='3d')
+    for i in range(1, rows * cols + 1):
+        ax = fig.add_subplot(rows, cols, i, projection='3d')
 
-    lower = np.zeros(3, dtype=float)
-    upper = np.zeros(3, dtype=float)
+        lower = np.zeros(3, dtype=float)
+        upper = np.zeros(3, dtype=float)
 
-    shape = generateShape()
-    for center, direction in shape:
-        if 0 in direction:
-            index = (np.array(direction) != 0).argmax()
-            faces = np.roll(OCTAHEDRON_FACES, index, axis=2)
-            faces[:, :, index] *= direction[index]
-            faces += center
+        shape = generateShape()
+        for center, direction in shape:
+            if 0 in direction:
+                index = (np.array(direction) != 0).argmax()
+                faces = np.roll(OCTAHEDRON_FACES, index, axis=2)
+                faces[:, :, index] *= direction[index]
+                faces += center
 
-            lower = np.minimum(lower, np.min(np.min(faces, axis=0), axis=0))
-            upper = np.maximum(upper, np.max(np.max(faces, axis=0), axis=0))
+                lower = np.minimum(lower, np.min(np.min(faces, axis=0), axis=0))
+                upper = np.maximum(upper, np.max(np.max(faces, axis=0), axis=0))
 
-            poly = Poly3DCollection(faces)
-            poly.set_color('r')
-            poly.set_alpha(0.3)
-            poly.set_edgecolor('k')
-            ax.add_collection3d(poly)
-        else:
-            faces = TETRAHEDRON_FACES * direction + center
+                poly = Poly3DCollection(faces)
+                poly.set_color('r')
+                poly.set_alpha(0.3)
+                poly.set_edgecolor('k')
+                ax.add_collection3d(poly)
+            else:
+                faces = TETRAHEDRON_FACES * direction + center
 
-            lower = np.minimum(lower, np.min(np.min(faces, axis=0), axis=0))
-            upper = np.maximum(upper, np.max(np.max(faces, axis=0), axis=0))
+                lower = np.minimum(lower, np.min(np.min(faces, axis=0), axis=0))
+                upper = np.maximum(upper, np.max(np.max(faces, axis=0), axis=0))
 
-            poly = Poly3DCollection(faces)
-            poly.set_color('b')
-            poly.set_alpha(0.3)
-            poly.set_edgecolor('k')
-            ax.add_collection3d(poly)
+                poly = Poly3DCollection(faces)
+                poly.set_color('b')
+                poly.set_alpha(0.3)
+                poly.set_edgecolor('k')
+                ax.add_collection3d(poly)
 
-    width = np.max(upper - lower) / 2 + 0.1
-    center = (upper + lower) / 2
+        width = np.max(upper - lower) / 2 + 0.1
+        center = (upper + lower) / 2
 
-    ax.axes.set_xlim3d(center[0] - width, center[0] + width)
-    ax.axes.set_ylim3d(center[1] - width, center[1] + width)
-    ax.axes.set_zlim3d(center[2] - width, center[2] + width)
+        ax.axes.set_xlim3d(center[0] - width, center[0] + width)
+        ax.axes.set_ylim3d(center[1] - width, center[1] + width)
+        ax.axes.set_zlim3d(center[2] - width, center[2] + width)
     plt.show()
+    """
 
