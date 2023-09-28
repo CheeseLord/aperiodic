@@ -145,7 +145,9 @@ def generateAllShapes():
         ((0, 0, 0), (1, 1, 1)),
     ]
     shapes = _generateHelper(shape, 2, 3)
-    return [list(y) for y in {tuple(sorted(x)) for x in shapes}]
+    shapes = [list(y) for y in {tuple(sorted(x)) for x in shapes}]
+    shapes = [list(y) for y in {tuple(makeCanonical(x)) for x in shapes}]
+    return shapes
 
 
 def _generateHelper(shape, o, t):
@@ -168,54 +170,109 @@ def _generateHelper(shape, o, t):
     return shapes
 
 
+def makeCanonical(shape):
+    best = sorted(shape)
+    arr = np.array(shape)
+
+    for sign in itertools.product([1, -1], repeat=3):
+        for perm in itertools.permutations(range(3)):
+            modified = arr[:, :, perm] * sign
+            newShape = sorted([(tuple(x[0]), tuple(x[1])) for x in modified])
+            best = min(best, newShape)
+
+    # TODO: Translate each widget to (0, 0, 0).
+
+    return best
+
+
 if __name__ == '__main__':
     shapes = generateAllShapes()
     print(len(shapes))
-    print(shapes[0])
 
     """
-    rows, cols = 1, 1
+    shape = generateShape()
+
+    rows, cols = 1, 2
     fig = plt.figure()
-    for i in range(1, rows * cols + 1):
-        ax = fig.add_subplot(rows, cols, i, projection='3d')
 
-        lower = np.zeros(3, dtype=float)
-        upper = np.zeros(3, dtype=float)
+    ax = fig.add_subplot(rows, cols, 1, projection='3d')
 
-        shape = generateShape()
-        for center, direction in shape:
-            if 0 in direction:
-                index = (np.array(direction) != 0).argmax()
-                faces = np.roll(OCTAHEDRON_FACES, index, axis=2)
-                faces[:, :, index] *= direction[index]
-                faces += center
+    lower = np.zeros(3, dtype=float)
+    upper = np.zeros(3, dtype=float)
 
-                lower = np.minimum(lower, np.min(np.min(faces, axis=0), axis=0))
-                upper = np.maximum(upper, np.max(np.max(faces, axis=0), axis=0))
+    for center, direction in shape:
+        if 0 in direction:
+            index = (np.array(direction) != 0).argmax()
+            faces = np.roll(OCTAHEDRON_FACES, index, axis=2)
+            faces[:, :, index] *= direction[index]
+            faces += center
 
-                poly = Poly3DCollection(faces)
-                poly.set_color('r')
-                poly.set_alpha(0.3)
-                poly.set_edgecolor('k')
-                ax.add_collection3d(poly)
-            else:
-                faces = TETRAHEDRON_FACES * direction + center
+            lower = np.minimum(lower, np.min(np.min(faces, axis=0), axis=0))
+            upper = np.maximum(upper, np.max(np.max(faces, axis=0), axis=0))
 
-                lower = np.minimum(lower, np.min(np.min(faces, axis=0), axis=0))
-                upper = np.maximum(upper, np.max(np.max(faces, axis=0), axis=0))
+            poly = Poly3DCollection(faces)
+            poly.set_color('r')
+            poly.set_alpha(0.3)
+            poly.set_edgecolor('k')
+            ax.add_collection3d(poly)
+        else:
+            faces = TETRAHEDRON_FACES * direction + center
 
-                poly = Poly3DCollection(faces)
-                poly.set_color('b')
-                poly.set_alpha(0.3)
-                poly.set_edgecolor('k')
-                ax.add_collection3d(poly)
+            lower = np.minimum(lower, np.min(np.min(faces, axis=0), axis=0))
+            upper = np.maximum(upper, np.max(np.max(faces, axis=0), axis=0))
 
-        width = np.max(upper - lower) / 2 + 0.1
-        center = (upper + lower) / 2
+            poly = Poly3DCollection(faces)
+            poly.set_color('b')
+            poly.set_alpha(0.3)
+            poly.set_edgecolor('k')
+            ax.add_collection3d(poly)
 
-        ax.axes.set_xlim3d(center[0] - width, center[0] + width)
-        ax.axes.set_ylim3d(center[1] - width, center[1] + width)
-        ax.axes.set_zlim3d(center[2] - width, center[2] + width)
+    width = np.max(upper - lower) / 2 + 0.1
+    center = (upper + lower) / 2
+
+    ax.axes.set_xlim3d(center[0] - width, center[0] + width)
+    ax.axes.set_ylim3d(center[1] - width, center[1] + width)
+    ax.axes.set_zlim3d(center[2] - width, center[2] + width)
+
+    ax = fig.add_subplot(rows, cols, 2, projection='3d')
+
+    lower = np.zeros(3, dtype=float)
+    upper = np.zeros(3, dtype=float)
+
+    for center, direction in makeCanonical(shape):
+        if 0 in direction:
+            index = (np.array(direction) != 0).argmax()
+            faces = np.roll(OCTAHEDRON_FACES, index, axis=2)
+            faces[:, :, index] *= direction[index]
+            faces += center
+
+            lower = np.minimum(lower, np.min(np.min(faces, axis=0), axis=0))
+            upper = np.maximum(upper, np.max(np.max(faces, axis=0), axis=0))
+
+            poly = Poly3DCollection(faces)
+            poly.set_color('r')
+            poly.set_alpha(0.3)
+            poly.set_edgecolor('k')
+            ax.add_collection3d(poly)
+        else:
+            faces = TETRAHEDRON_FACES * direction + center
+
+            lower = np.minimum(lower, np.min(np.min(faces, axis=0), axis=0))
+            upper = np.maximum(upper, np.max(np.max(faces, axis=0), axis=0))
+
+            poly = Poly3DCollection(faces)
+            poly.set_color('b')
+            poly.set_alpha(0.3)
+            poly.set_edgecolor('k')
+            ax.add_collection3d(poly)
+
+    width = np.max(upper - lower) / 2 + 0.1
+    center = (upper + lower) / 2
+
+    ax.axes.set_xlim3d(center[0] - width, center[0] + width)
+    ax.axes.set_ylim3d(center[1] - width, center[1] + width)
+    ax.axes.set_zlim3d(center[2] - width, center[2] + width)
+
     plt.show()
     """
 
