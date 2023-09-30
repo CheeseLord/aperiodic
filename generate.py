@@ -1,7 +1,4 @@
 import itertools
-import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d import Axes3D
-from mpl_toolkits.mplot3d.art3d import Poly3DCollection
 import numpy as np
 
 
@@ -141,5 +138,7 @@ def makeCanonical(shape):
 
 if __name__ == '__main__':
     shapes = generateAllShapes()
+    with open('allShapes.txt', 'w') as f:
+        f.writelines([f'{shape}\n' for shape in shapes])
     print(len(shapes))
 
