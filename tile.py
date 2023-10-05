@@ -7,7 +7,7 @@ from generate import DIRECTIONS, generateShape
 
 
 CENTERS = [
-    c for c in itertools.product(range(-5, 6), repeat=3)
+    c for c in itertools.product(range(-10, 11), repeat=3)
     if sum(c) % 2 == 0
 ]
 CENTERS.sort(key=np.linalg.norm)
@@ -39,13 +39,9 @@ class InteractiveTiling:
             while True:
                 self.orientation = (self.orientation + 1) % 12
                 newShape = orient(self.shape, self.widgetIndex, self.orientation)
-                good = True
-                for widget in newShape:
-                    if widget in self.used:
-                        good = False
-                        break
-                if good:
+                if not (self.used & set(newShape)):
                     break
+
             self.redraw()
 
         # Rotate current backward.
@@ -53,13 +49,9 @@ class InteractiveTiling:
             while True:
                 self.orientation = (self.orientation - 1) % 12
                 newShape = orient(self.shape, self.widgetIndex, self.orientation)
-                good = True
-                for widget in newShape:
-                    if widget in self.used:
-                        good = False
-                        break
-                if good:
+                if not (self.used & set(newShape)):
                     break
+
             self.redraw()
 
         # Accept current, add new.
@@ -67,11 +59,23 @@ class InteractiveTiling:
             currentShape = orient(self.shape, self.widgetIndex, self.orientation)
             self.shapes.append(currentShape)
             self.positions.append((self.widgetIndex, self.orientation))
-            self.used |= set(currentShape)
+            used = self.used | set(currentShape)
 
-            # FIXME: Widget index.
-            # FIXME: Orientation
-            # FIXME: Handle impossible.
+            for i, widget in enumerate(WIDGETS):
+                if widget not in self.used:
+                    self.widgetIndex = i
+                    break
+
+            for orientation in range(12):
+                if not (self.used & set(currentShape)):
+                    self.used = used
+                    self.orientation = orientation
+                    break
+            else:
+                # TODO: Display error.
+                shape = self.shapes.pop()
+                self.widgetIndex, self.orientation = self.positions.pop()
+
             self.redraw()
 
         # Delete current, return to old.
@@ -81,6 +85,7 @@ class InteractiveTiling:
             shape = self.shapes.pop()
             self.widgetIndex, self.orientation = self.positions.pop()
             self.used -= set(shape)
+
             self.redraw()
 
         # Skip widgets.
@@ -90,12 +95,71 @@ class InteractiveTiling:
 
 
     def redraw(self):
+        self.ax.clear()
         newShape = orient(self.shape, self.widgetIndex, self.orientation)
         drawShapes(self.ax, self.shapes + [newShape])
+        ax.scatter([0], [0], [0], c='k')
+        ax.axes.set_xlim3d(-3, 3)
+        ax.axes.set_ylim3d(-3, 3)
+        ax.axes.set_zlim3d(-3, 3)
         self.fig.canvas.draw()
 
 
 def orient(shape, widgetIndex, orientation):
+    arr = np.array(shape)
+    targetCenter, targetDirection = WIDGETS[widgetIndex]
+
+    if 0 in targetDirection:
+        position, rotation = divmod(orientation, 4)
+        count = position + 1
+        for center, direction in shape:
+            if 0 in direction:
+                count -= 1
+            if count == 0:
+                break
+
+        arr[:, 0] -= center
+
+        # Rotate the direction onto the target.
+        # FIXME: Write this.
+
+        # Use the Rodrigues formula to rotate axes.
+        # FIXME: Write this.
+
+        arr[:, 0] += targetCenter
+
+        return [(tuple(x[0]), tuple(x[1])) for x in arr]
+    else:
+        position, rotation = divmod(orientation, 3)
+        count = position + 1
+        for center, direction in shape:
+            if 0 not in direction:
+                count -= 1
+            if count == 0:
+                break
+
+        arr[:, 0] -= center
+
+        # Rotate the direction onto the target.
+        arr *= direction
+        if np.prod(direction) == -1:
+            arr = arr[:, :, [1, 0, 2]]
+        arr *= targetDirection
+
+        # Use the Rodrigues formula to rotate around the target axis.
+        x, y, z = targetDirection
+        mat = np.array([
+            [0, x * y - z, x * z + y],
+            [x * y + z, 0, y * z - x],
+            [x * z - y, y * z + x, 0],
+        ], dtype=int) // 2
+        rot = np.linalg.matrix_power(mat, rotation)
+        arr = np.matmul(arr, rot)
+
+        arr[:, 0] += targetCenter
+
+        return [(tuple(x[0]), tuple(x[1])) for x in arr]
+
     # FIXME: Write this.
     return shape
 
@@ -103,9 +167,12 @@ def orient(shape, widgetIndex, orientation):
 if __name__ == '__main__':
     fig = plt.figure()
     ax = fig.add_subplot(111, projection='3d')
+
     shape = generateShape()
 
     tiling = InteractiveTiling(fig, ax, shape)
-
     plt.show()
+
+    #print(shape)
+    #print(orient(shape, 0, 4))
 
