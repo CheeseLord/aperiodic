@@ -57,7 +57,7 @@ def drawShapes(ax, shapes):
     upper = np.zeros(3, dtype=float)
 
     for i, shape in enumerate(shapes):
-        hsv = (np.random.random(), 0.7, 0.7)
+        hsv = (i * 0.618, 0.7, 0.7)
         color = '#' + ''.join(
             hex(int(x * 255))[2:]
             for x in colorsys.hsv_to_rgb(*hsv)

@@ -62,17 +62,19 @@ class InteractiveTiling:
             used = self.used | set(currentShape)
 
             for i, widget in enumerate(WIDGETS):
-                if widget not in self.used:
+                if widget not in used:
                     self.widgetIndex = i
                     break
 
             for orientation in range(12):
-                if not (self.used & set(currentShape)):
+                newShape = orient(self.shape, self.widgetIndex, orientation)
+                if not (self.used & set(newShape)):
                     self.used = used
                     self.orientation = orientation
                     break
             else:
                 # TODO: Display error.
+                print('Invalid configuration')
                 shape = self.shapes.pop()
                 self.widgetIndex, self.orientation = self.positions.pop()
 
