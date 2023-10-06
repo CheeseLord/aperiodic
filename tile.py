@@ -121,10 +121,22 @@ def orient(shape, widgetIndex, orientation):
         arr[:, 0] -= center
 
         # Rotate the direction onto the target.
-        # FIXME: Write this.
+        axis = np.argmax(np.abs(direction))
+        targetAxis = np.argmax(np.abs(targetDirection))
+        arr = np.roll(arr, targetAxis - axis, axis=2)
+        if direction[axis] != targetDirection[targetAxis]:
+            arr[:, :, targetAxis] *= -1
+            arr[:, :, (targetAxis + 1) % 3] *= -1
 
         # Use the Rodrigues formula to rotate axes.
-        # FIXME: Write this.
+        x, y, z = targetDirection
+        mat = np.array([
+            [1 - y * y - z * z, x * y - z, x * z + y],
+            [x * y + z, 1 - x * x - z * z, y * z - x],
+            [x * z - y, y * z + x, 1 - x * x - y * y],
+        ])
+        rot = np.linalg.matrix_power(mat, rotation)
+        arr = np.matmul(arr, rot)
 
         arr[:, 0] += targetCenter
 
@@ -159,9 +171,6 @@ def orient(shape, widgetIndex, orientation):
         arr[:, 0] += targetCenter
 
         return [(tuple(x[0]), tuple(x[1])) for x in arr]
-
-    # FIXME: Write this.
-    return shape
 
 
 if __name__ == '__main__':
