@@ -68,7 +68,7 @@ class InteractiveTiling:
 
             for orientation in range(12):
                 newShape = orient(self.shape, self.widgetIndex, orientation)
-                if not (self.used & set(newShape)):
+                if not (used & set(newShape)):
                     self.used = used
                     self.orientation = orientation
                     break
