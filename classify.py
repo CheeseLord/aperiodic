@@ -3,6 +3,7 @@ from enum import Enum
 import itertools
 import numpy as np
 
+from generate import DIRECTIONS
 from geometry import orient
 
 
@@ -22,11 +23,36 @@ class Behavior(Enum):
     UNKNOWN = 2
 
 
-def classify(shape):
-    shapes = []
-    positions = []  # [(widget index, orientation)]
-    used = set()
-    # FIXME: Write this.
+def classify(shape, maxDepth=6):
+    allTilings = [[shape]]
+    allUsed = [set(shape)]
+    for i in range(2, maxDepth + 1):
+        newTilings = []
+        newUsed = []
+        # Expand each tiling in each possible way.
+        for shapes, used in zip(allTilings, allUsed):
+            for widget in WIDGETS:
+                if widget not in used:
+                    break
+
+            for orientation in range(12):
+                newShape = orient(shape, widget, orientation)
+                newSet = set(newShape)
+                if used & newSet:
+                    continue
+                newShapes = shapes + [newShape]
+                if isRepeating(newShapes):
+                    return Behavior.PERIODIC, i
+                newTilings.append(newShapes)
+                newUsed.append(used | newSet)
+
+        if not newTilings:
+            return Behavior.INVALID, i
+        allTilings = newTilings
+        allUsed = newUsed
+
+    return Behavior.UNKNOWN, maxDepth
+
 
 
 def isRepeating(shapes):
@@ -74,4 +100,6 @@ if __name__ == '__main__':
     with open('allShapes.txt') as f:
         lines = f.readlines()
     shapes = [eval(l) for l in lines]
+    for i in range(100):
+        print(classify(shapes[i]))
 
