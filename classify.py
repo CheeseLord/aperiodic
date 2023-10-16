@@ -95,11 +95,14 @@ def isRepeating(shapes):
     return False
 
 
-
 if __name__ == '__main__':
-    with open('allShapes.txt') as f:
+    with open('shapes/allShapes.txt') as f:
         lines = f.readlines()
     shapes = [eval(l) for l in lines]
-    for i in range(100):
-        print(classify(shapes[i]))
+    for shape in shapes:
+        class_, size = classify(shape)
+        className = str(class_).lower().split('.')[1]
+        with open(f'shapes/{className}-{size}.txt', 'a') as f:
+            f.write(f'{shape}\n')
+        print(className, size)
 

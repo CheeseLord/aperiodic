@@ -138,7 +138,7 @@ def makeCanonical(shape):
 
 if __name__ == '__main__':
     shapes = generateAllShapes()
-    with open('allShapes.txt', 'w') as f:
+    with open('shapes/allShapes.txt', 'w') as f:
         f.writelines([f'{shape}\n' for shape in shapes])
     print(len(shapes))
 
