@@ -50,7 +50,7 @@ def orient(shape, widget, orientation):
 
         # Rotate the direction onto the target.
         arr *= direction
-        if np.prod(direction) == -1:
+        if np.prod(direction) * np.prod(targetDirection) == -1:
             arr = arr[:, :, [1, 0, 2]]
         arr *= targetDirection
 

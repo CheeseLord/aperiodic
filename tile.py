@@ -119,10 +119,15 @@ class InteractiveTiling:
 
 
 if __name__ == '__main__':
+    import random
+
+    with open('shapes/allShapes.txt') as f:
+        shapes = [eval(l) for l in f.readlines()]
+
     fig = plt.figure()
     ax = fig.add_subplot(111, projection='3d')
 
-    shape = generateShape()
+    shape = random.choice(shapes)
 
     tiling = InteractiveTiling(fig, ax, shape)
     plt.show()

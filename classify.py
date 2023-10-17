@@ -96,6 +96,7 @@ def isRepeating(shapes):
 
 
 if __name__ == '__main__':
+    """
     with open('shapes/allShapes.txt') as f:
         lines = f.readlines()
     shapes = [eval(l) for l in lines]
@@ -105,4 +106,9 @@ if __name__ == '__main__':
         with open(f'shapes/{className}-{size}.txt', 'a') as f:
             f.write(f'{shape}\n')
         print(className, size)
+    """
+
+    with open('shapes/invalid-2.txt') as f:
+        shapes = [eval(l) for l in f.readlines()]
+    print(classify(shapes[9]))
 
