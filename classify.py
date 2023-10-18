@@ -3,18 +3,7 @@ from enum import Enum
 import itertools
 import numpy as np
 
-from generate import DIRECTIONS
-from geometry import orient
-
-
-# TODO: Find a better way to generate these.
-CENTERS = [
-    c for c in itertools.product(range(-10, 11), repeat=3)
-    if sum(c) % 2 == 0
-]
-CENTERS.sort(key=np.linalg.norm)
-
-WIDGETS = list(itertools.product(CENTERS, DIRECTIONS))
+from geometry import WIDGETS, orient
 
 
 class Behavior(Enum):

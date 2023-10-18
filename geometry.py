@@ -1,4 +1,22 @@
+import itertools
 import numpy as np
+
+
+# Directions around a vertex.
+DIRECTIONS = [
+    (x, y, z) for x, y, z in itertools.product([1, 0, -1], repeat=3)
+    if (x + y + z) % 2 == 1
+]
+
+# Centers of widgets.
+# TODO: Find a better way to organize these.
+CENTERS = [
+    c for c in itertools.product(range(-10, 11), repeat=3)
+    if sum(c) % 2 == 0
+]
+CENTERS.sort(key=np.linalg.norm)
+
+WIDGETS = list(itertools.product(CENTERS, DIRECTIONS))
 
 
 def orient(shape, widget, orientation):

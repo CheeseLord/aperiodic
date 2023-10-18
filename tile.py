@@ -1,19 +1,8 @@
-import itertools
 import matplotlib.pyplot as plt
 import numpy as np
 
 from display import drawShapes
-from generate import DIRECTIONS, generateShape
-from geometry import orient
-
-
-CENTERS = [
-    c for c in itertools.product(range(-10, 11), repeat=3)
-    if sum(c) % 2 == 0
-]
-CENTERS.sort(key=np.linalg.norm)
-
-WIDGETS = list(itertools.product(CENTERS, DIRECTIONS))
+from geometry import WIDGETS, orient
 
 
 class InteractiveTiling:

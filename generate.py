@@ -1,12 +1,8 @@
 import itertools
 import numpy as np
 
+from geometry import DIRECTIONS
 
-# Directions around a vertex.
-DIRECTIONS = [
-    (x, y, z) for x, y, z in itertools.product([1, 0, -1], repeat=3)
-    if (x + y + z) % 2 == 1
-]
 
 # Adjacent directions at the same vertex.
 VERTEX_ADJACENT = {
