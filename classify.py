@@ -6,6 +6,9 @@ import numpy as np
 from geometry import WIDGETS, orient
 
 
+PRIMES = [2, 3, 5, 7]
+
+
 class Behavior(Enum):
     PERIODIC = 0
     INVALID = 1
@@ -13,8 +16,9 @@ class Behavior(Enum):
 
 
 def classify(shape, maxDepth=6):
-    allTilings = [[shape]]
-    allUsed = [set(shape)]
+    oriented = orient(shape, WIDGETS[0], 0)
+    allTilings = [[oriented]]
+    allUsed = [set(oriented)]
     for i in range(2, maxDepth + 1):
         newTilings = []
         newUsed = []
@@ -61,7 +65,7 @@ def isRepeating(shapes):
     if count == 1:
         return True
 
-    if count == 2 or count == 3:
+    if count in PRIMES:
         vectors = set()
         for (c1, d1), (c2, d2) in itertools.combinations(merged, 2):
             if d1 == d2:
@@ -80,14 +84,13 @@ def isRepeating(shapes):
             else:
                 return True
 
-    # FIXME: Handle larger counts.
+    # FIXME: Handle composite counts.
     return False
 
 
 if __name__ == '__main__':
     with open('shapes/allShapes.txt') as f:
-        lines = f.readlines()
-    shapes = [eval(l) for l in lines]
+        shapes = [eval(l) for l in f.readlines()]
     for i, shape in enumerate(shapes):
         class_, size = classify(shape)
         className = str(class_).lower().split('.')[1]
