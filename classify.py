@@ -89,7 +89,7 @@ def isRepeating(shapes):
 
 
 if __name__ == '__main__':
-    with open('shapes/allShapes.txt') as f:
+    with open('shapes/unknown.txt') as f:
         shapes = [eval(l) for l in f.readlines()]
     for i, shape in enumerate(shapes):
         class_, size = classify(shape)
