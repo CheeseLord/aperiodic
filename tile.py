@@ -110,7 +110,7 @@ class InteractiveTiling:
 if __name__ == '__main__':
     import random
 
-    with open('shapes/allShapes.txt') as f:
+    with open('shapes/unknown.txt') as f:
         shapes = [eval(l) for l in f.readlines()]
 
     fig = plt.figure()
