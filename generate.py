@@ -1,55 +1,7 @@
 import itertools
 import numpy as np
 
-from geometry import DIRECTIONS
-
-
-# Adjacent directions at the same vertex.
-VERTEX_ADJACENT = {
-    direction: [] for direction in DIRECTIONS
-}
-for direction in DIRECTIONS:
-    if 0 in direction:
-        continue
-    for otherDir in DIRECTIONS:
-        if sorted(np.abs(np.array(direction) - otherDir)) == [0, 1, 1]:
-            VERTEX_ADJACENT[direction].append(otherDir)
-            VERTEX_ADJACENT[otherDir].append(direction)
-
-# Adjacent directions around centers of polyhedra.
-CENTER_ADJACENT = {
-    direction: [] for direction in DIRECTIONS
-}
-for direction in DIRECTIONS:
-    if 0 in direction:
-        for i in range(3):
-            if direction[i] != 0:
-                continue
-            for j in [-1, 1]:
-                v = np.zeros(3, dtype=int)
-                v[i] = j
-                CENTER_ADJACENT[direction].append(
-                    (tuple(direction - v), tuple(v))
-                )
-    else:
-        for i in range(3):
-            v = np.ones(3, dtype=int) * -1
-            v[i] = 1
-            v *= direction
-            CENTER_ADJACENT[direction].append(
-                (tuple((direction - v) // 2), tuple(v))
-            )
-
-
-def getNeighbors(center, direction):
-    sameVertex = [
-        (center, otherDir) for otherDir in VERTEX_ADJACENT[direction]
-    ]
-    sameCenter = [
-        (tuple(np.array(center) + otherCenter), otherDir)
-        for otherCenter, otherDir in CENTER_ADJACENT[direction]
-    ]
-    return sameVertex + sameCenter
+from geometry import getNeighbors
 
 
 def generateShape():
