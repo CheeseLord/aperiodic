@@ -2,8 +2,50 @@ import itertools
 import numpy as np
 import random
 
-from classify import isRepeating
 from geometry import DIRECTIONS, orient
+
+
+PRIMES = [2, 3, 5, 7]
+
+
+def isRepeating(shapes):
+    if len(shapes) % 2 != 0:
+        return False
+
+    merged = []
+    for shape in shapes:
+        merged += shape
+
+    # Check if there are the same number of each widget.
+    c = Counter([x[1] for x in merged])
+    if len(c) != 14 or len(set(c.values())) != 1:
+        return False
+
+    count = c[(1, 1, 1)]
+    if count == 1:
+        return True
+
+    if count in PRIMES:
+        vectors = set()
+        for (c1, d1), (c2, d2) in itertools.combinations(merged, 2):
+            if d1 == d2:
+                vectors.add(tuple(np.array(c2) - np.array(c1)))
+
+        # Check if each possible lattice partitions the widgets correctly.
+        for a, b, c in itertools.product(range(count), repeat=3):
+            for x, y, z in vectors:
+                color = (
+                    a * (y + z - x)
+                    + b * (z + x - y)
+                    + c * (x + y - z)
+                ) // 2
+                if color % count == 0:
+                    break
+            else:
+                return True
+
+    # FIXME: Handle composite counts.
+    return False
 
 
 def periodic2(shape):

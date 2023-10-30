@@ -4,9 +4,7 @@ import itertools
 import numpy as np
 
 from geometry import WIDGETS, orient
-
-
-PRIMES = [2, 3, 5, 7]
+from periodic import isRepeating
 
 
 class Behavior(Enum):
@@ -47,54 +45,13 @@ def classify(shape, maxDepth=6):
     return Behavior.UNKNOWN, maxDepth
 
 
-
-def isRepeating(shapes):
-    if len(shapes) % 2 != 0:
-        return False
-
-    merged = []
-    for shape in shapes:
-        merged += shape
-
-    # Check if there are the same number of each widget.
-    c = Counter([x[1] for x in merged])
-    if len(c) != 14 or len(set(c.values())) != 1:
-        return False
-
-    count = c[(1, 1, 1)]
-    if count == 1:
-        return True
-
-    if count in PRIMES:
-        vectors = set()
-        for (c1, d1), (c2, d2) in itertools.combinations(merged, 2):
-            if d1 == d2:
-                vectors.add(tuple(np.array(c2) - np.array(c1)))
-
-        # Check if each possible lattice partitions the widgets correctly.
-        for a, b, c in itertools.product(range(count), repeat=3):
-            for x, y, z in vectors:
-                color = (
-                    a * (y + z - x)
-                    + b * (z + x - y)
-                    + c * (x + y - z)
-                ) // 2
-                if color % count == 0:
-                    break
-            else:
-                return True
-
-    # FIXME: Handle composite counts.
-    return False
-
-
 if __name__ == '__main__':
     with open('shapes/unknown.txt') as f:
         shapes = [eval(l) for l in f.readlines()]
     for i, shape in enumerate(shapes):
         class_, size = classify(shape)
         className = str(class_).lower().split('.')[1]
-        with open(f'shapes/{className}-{size}.txt', 'a') as f:
+        with open(f'shapes/working/{className}-{size}.txt', 'a') as f:
             f.write(f'{shape}\n')
         print(f'{i: 5d}', className, size)
 
