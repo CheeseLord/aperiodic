@@ -94,7 +94,7 @@ if __name__ == '__main__':
     for i, shape in enumerate(shapes):
         class_, size = classify(shape)
         className = str(class_).lower().split('.')[1]
-        with open(f'shapes/{className}-{size}.txt', 'a') as f:
+        with open(f'shapes/working/{className}-{size}.txt', 'a') as f:
             f.write(f'{shape}\n')
         print(f'{i: 5d}', className, size)
 

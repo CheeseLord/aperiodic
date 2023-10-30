@@ -9,7 +9,7 @@ def generateShape():
         ((0, 0, 0), (1, 0, 0)),
         ((0, 0, 0), (1, 1, 1)),
     ]
-    neighbors = [getNeighbors(*x) for x in shape]
+    neighbors = [getNeighbors(x) for x in shape]
     neighbors = neighbors[0] + neighbors[1]
 
     o = 2
@@ -33,7 +33,7 @@ def generateShape():
         else:
             t -= 1
         shape.append(n)
-        neighbors.extend(getNeighbors(*n))
+        neighbors.extend(getNeighbors(n))
 
     return shape
 
@@ -55,7 +55,7 @@ def _generateHelper(shape, o, t):
 
     neighbors = set()
     for x in shape:
-        neighbors = neighbors.union(getNeighbors(*x))
+        neighbors = neighbors.union(getNeighbors(x))
     neighbors = neighbors.difference(shape)
 
     shapes = []

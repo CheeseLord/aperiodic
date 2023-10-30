@@ -44,18 +44,9 @@ for direction in DIRECTIONS:
                 (tuple((direction - v) // 2), tuple(v))
             )
 
-# Centers of widgets.
-# TODO: Find a better way to organize these.
-CENTERS = [
-    c for c in itertools.product(range(-10, 11), repeat=3)
-    if sum(c) % 2 == 0
-]
-CENTERS.sort(key=np.linalg.norm)
 
-WIDGETS = list(itertools.product(CENTERS, DIRECTIONS))
-
-
-def getNeighbors(center, direction):
+def getNeighbors(widget):
+    center, direction = widget
     sameVertex = [
         (center, otherDir) for otherDir in VERTEX_ADJACENT[direction]
     ]
@@ -64,6 +55,19 @@ def getNeighbors(center, direction):
         for otherCenter, otherDir in CENTER_ADJACENT[direction]
     ]
     return sameVertex + sameCenter
+
+
+WIDGETS = []
+_used = set()
+_toExpand = [((0, 0, 0), (1, 0, 0))]
+while len(WIDGETS) < 10000:
+    w = _toExpand[0]
+    _toExpand = _toExpand[1:]
+    if w in _used:
+        continue
+    WIDGETS.append(w)
+    _used.add(w)
+    _toExpand.extend([x for x in getNeighbors(w) if x not in _used])
 
 
 def orient(shape, widget, orientation):
