@@ -77,11 +77,8 @@ def explore(shape, timeout=1):
             allTilings.append(newShapes)
             allUsed.append(used | newSet)
 
-        # TODO: Handle larger depths.
-        if bestSize == 20:
-            break
-
-    for shapes in more_itertools.powerset(best):
+    # TODO: Handle larger depths.
+    for shapes in more_itertools.powerset(best[:20]):
         if len(shapes) == 0:
             continue
 
@@ -99,7 +96,7 @@ if __name__ == '__main__':
     with open('shapes/unknown.txt') as f:
         shapes = [eval(l) for l in f.readlines()]
     for i, shape in enumerate(shapes):
-        class_, size = explore(shape)
+        class_, size = explore(shape, 3)
         className = str(class_).lower().split('.')[1]
         if class_ == Behavior.UNKNOWN:
             with open(f'shapes/working/unknown.txt', 'a') as f:
