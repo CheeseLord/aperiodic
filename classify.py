@@ -1,4 +1,5 @@
 from enum import Enum
+import itertools
 import more_itertools
 import numpy as np
 import time
@@ -81,17 +82,11 @@ def explore(shape, timeout=1):
         if bestSize == 20:
             break
 
-    # TODO: Handle larger depths.
-    for shapes in more_itertools.powerset(best[:20]):
-        if len(shapes) == 0:
-            continue
-
-        # TODO: Handle larger subsets.
-        if len(shapes) > 6:
-            break
-
-        if isRepeating(shapes):
-            return Behavior.PERIODIC, len(shapes)
+    for length in [2, 4, 6, 8]:
+        # TODO: Handle larger depths.
+        for shapes in itertools.combinations(best[:20], length):
+            if isRepeating(shapes):
+                return Behavior.PERIODIC, len(shapes)
 
     return Behavior.UNKNOWN, bestSize
 

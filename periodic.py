@@ -26,26 +26,28 @@ def isRepeating(shapes):
     if count == 1:
         return True
 
-    if count in PRIMES:
-        vectors = set()
-        for (c1, d1), (c2, d2) in itertools.combinations(merged, 2):
-            if d1 == d2:
-                vectors.add(tuple(np.array(c2) - np.array(c1)))
+    vectors = set()
+    for (c1, d1), (c2, d2) in itertools.combinations(merged, 2):
+        if d1 == d2:
+            vectors.add(tuple(np.array(c2) - np.array(c1)))
 
-        # Check if each possible lattice partitions the widgets correctly.
-        for a, b, c in itertools.product(range(count), repeat=3):
-            for x, y, z in vectors:
-                color = (
-                    a * (y + z - x)
-                    + b * (z + x - y)
-                    + c * (x + y - z)
-                ) // 2
-                if color % count == 0:
-                    break
-            else:
-                return True
+    # Check if each possible lattice partitions the widgets correctly.
+    for a, b, c in itertools.product(range(count), repeat=3):
+        for x, y, z in vectors:
+            color = (
+                a * (y + z - x)
+                + b * (z + x - y)
+                + c * (x + y - z)
+            ) // 2
+            if color % count == 0:
+                break
+        else:
+            return True
 
-    # FIXME: Handle composite counts.
+    if count not in PRIMES:
+        # FIXME: There are other lattices for composite counts.
+        pass
+
     return False
 
 
