@@ -6,9 +6,6 @@ import random
 from geometry import DIRECTIONS, orient
 
 
-PRIMES = [2, 3, 5, 7]
-
-
 def isRepeating(shapes):
     if len(shapes) % 2 != 0:
         return False
@@ -44,9 +41,24 @@ def isRepeating(shapes):
         else:
             return True
 
-    if count not in PRIMES:
-        # FIXME: There are other lattices for composite counts.
-        pass
+    if count == 4:
+        for a, b, c in itertools.product(range(count), repeat=3):
+            a = np.array([a // 2, a % 2], dtype=int)
+            b = np.array([b // 2, b % 2], dtype=int)
+            c = np.array([c // 2, c % 2], dtype=int)
+
+            for x, y, z in vectors:
+                color = (
+                    a * (y + z - x)
+                    + b * (z + x - y)
+                    + c * (x + y - z)
+                ) // 2
+                if not np.any(color % 2):
+                    break
+            else:
+                return True
+
+    # FIXME: There are other lattices for composite counts.
 
     return False
 

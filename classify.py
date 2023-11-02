@@ -46,7 +46,7 @@ def classify(shape, maxDepth=6):
     return Behavior.UNKNOWN, maxDepth
 
 
-def explore(shape, maxSteps=2000):
+def explore(shape, maxSteps=1000):
     oriented = orient(shape, WIDGETS[0], np.random.randint(12))
     allTilings = [[oriented]]
     allUsed = [set(oriented)]
@@ -77,14 +77,10 @@ def explore(shape, maxSteps=2000):
             allTilings.append(newShapes)
             allUsed.append(used | newSet)
 
-        # TODO: Handle larger depths.
-        if bestSize == 20:
-            break
-
     # TODO: Handle other lengths.
-    for length in [2, 4, 6]:
+    for length in [2, 4, 6, 8, 10]:
         # TODO: Handle larger depths.
-        for shapes in itertools.combinations(best[:20], length):
+        for shapes in itertools.combinations(best[:15], length):
             if isRepeating(shapes):
                 return Behavior.PERIODIC, len(shapes)
 
