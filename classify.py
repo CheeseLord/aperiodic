@@ -79,7 +79,7 @@ def explore(shape, maxSteps=1000):
             allUsed.append(used | newSet)
 
     # TODO: Handle other lengths.
-    for length in [2, 4, 6, 8, 10]:
+    for length in [4, 6, 8]:
         # TODO: Handle larger depths.
         for shapes in itertools.combinations(best[:15], length):
             if isRepeating(shapes):
@@ -90,21 +90,21 @@ def explore(shape, maxSteps=1000):
 
 if __name__ == '__main__':
     PROCESSES = 4
-    CHUNK_SIZE = 100
+    BATCH_SIZE = 100
     MAX_STEPS = 1000
 
     with open('shapes/unknown.txt') as f:
         shapes = [eval(l) for l in f.readlines()]
 
-    pool = mp.Pool(processes=PROCESSES)
-    chunks = [
-        shapes[i: i + CHUNK_SIZE]
-        for i in range(0, len(shapes), CHUNK_SIZE)
-    ]
     i = 0
-    for c in chunks:
-        results = pool.starmap(explore, [(s, MAX_STEPS) for s in c])
-        for shape, (class_, size) in zip(c, results):
+    pool = mp.Pool(processes=PROCESSES)
+    batches = [
+        shapes[i: i + BATCH_SIZE]
+        for i in range(0, len(shapes), BATCH_SIZE)
+    ]
+    for b in batches:
+        results = pool.starmap(explore, [(s, MAX_STEPS) for s in b])
+        for shape, (class_, size) in zip(b, results):
             className = str(class_).lower().split('.')[1]
             if class_ == Behavior.UNKNOWN:
                 with open(f'shapes/working/unknown.txt', 'a') as f:
