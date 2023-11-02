@@ -1,7 +1,7 @@
 from enum import Enum
 import itertools
-import more_itertools
 import numpy as np
+import random
 import time
 
 from geometry import WIDGETS, orient
@@ -46,16 +46,15 @@ def classify(shape, maxDepth=6):
     return Behavior.UNKNOWN, maxDepth
 
 
-def explore(shape, timeout=1):
-    oriented = orient(shape, WIDGETS[0], 0)
+def explore(shape, maxSteps=2000):
+    oriented = orient(shape, WIDGETS[0], np.random.randint(12))
     allTilings = [[oriented]]
     allUsed = [set(oriented)]
 
     best = [oriented]
     bestSize = 1
 
-    end = time.time() + timeout
-    while time.time() < end:
+    for _ in range(maxSteps):
         if not allTilings:
             return Behavior.INVALID, bestSize + 1
 
@@ -65,7 +64,7 @@ def explore(shape, timeout=1):
             if widget not in used:
                 break
 
-        for orientation in range(12):
+        for orientation in random.sample(range(12), 12):
             newShape = orient(shape, widget, orientation)
             newSet = set(newShape)
             if used & newSet:
@@ -82,7 +81,8 @@ def explore(shape, timeout=1):
         if bestSize == 20:
             break
 
-    for length in [2, 4, 6, 8]:
+    # TODO: Handle other lengths.
+    for length in [2, 4, 6]:
         # TODO: Handle larger depths.
         for shapes in itertools.combinations(best[:20], length):
             if isRepeating(shapes):
@@ -95,7 +95,7 @@ if __name__ == '__main__':
     with open('shapes/unknown.txt') as f:
         shapes = [eval(l) for l in f.readlines()]
     for i, shape in enumerate(shapes):
-        class_, size = explore(shape, 1)
+        class_, size = explore(shape)
         className = str(class_).lower().split('.')[1]
         if class_ == Behavior.UNKNOWN:
             with open(f'shapes/working/unknown.txt', 'a') as f:
