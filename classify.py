@@ -1,5 +1,6 @@
 from enum import Enum
 import itertools
+import multiprocessing as mp
 import numpy as np
 import random
 import time
@@ -88,16 +89,30 @@ def explore(shape, maxSteps=1000):
 
 
 if __name__ == '__main__':
+    PROCESSES = 4
+    CHUNK_SIZE = 100
+    MAX_STEPS = 1000
+
     with open('shapes/unknown.txt') as f:
         shapes = [eval(l) for l in f.readlines()]
-    for i, shape in enumerate(shapes):
-        class_, size = explore(shape)
-        className = str(class_).lower().split('.')[1]
-        if class_ == Behavior.UNKNOWN:
-            with open(f'shapes/working/unknown.txt', 'a') as f:
-                f.write(f'{shape}\n')
-        else:
-            with open(f'shapes/working/{className}-{size}.txt', 'a') as f:
-                f.write(f'{shape}\n')
-        print(f'{i: 5d}', className, size)
 
+    pool = mp.Pool(processes=PROCESSES)
+    chunks = [
+        shapes[i: i + CHUNK_SIZE]
+        for i in range(0, len(shapes), CHUNK_SIZE)
+    ]
+    i = 0
+    for c in chunks:
+        results = pool.starmap(explore, [(s, MAX_STEPS) for s in c])
+        for shape, (class_, size) in zip(c, results):
+            className = str(class_).lower().split('.')[1]
+            if class_ == Behavior.UNKNOWN:
+                with open(f'shapes/working/unknown.txt', 'a') as f:
+                    f.write(f'{shape}\n')
+            else:
+                with open(f'shapes/working/{className}-{size}.txt', 'a') as f:
+                    f.write(f'{shape}\n')
+            print(f'{i: 5d}', className, size)
+
+            i += 1
+    
