@@ -104,6 +104,7 @@ if __name__ == '__main__':
     ]
     for b in batches:
         results = pool.starmap(explore, [(s, MAX_STEPS) for s in b])
+        print(f'~~ {i: 5d} - {i + BATCH_SIZE - 1: 5d} ~~')
         for shape, (class_, size) in zip(b, results):
             className = str(class_).lower().split('.')[1]
             if class_ == Behavior.UNKNOWN:
@@ -112,7 +113,7 @@ if __name__ == '__main__':
             else:
                 with open(f'shapes/working/{className}-{size}.txt', 'a') as f:
                     f.write(f'{shape}\n')
-            print(f'{i: 5d}', className, size)
+                print(f'{i: 5d}', className, size)
 
             i += 1
     
