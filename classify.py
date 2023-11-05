@@ -47,7 +47,7 @@ def classify(shape, maxDepth=6):
     return Behavior.UNKNOWN, maxDepth
 
 
-def explore(shape, maxSteps=1000):
+def explore(shape, maxSteps):
     oriented = orient(shape, WIDGETS[0], np.random.randint(12))
     allTilings = [[oriented]]
     allUsed = [set(oriented)]
@@ -88,10 +88,48 @@ def explore(shape, maxSteps=1000):
     return Behavior.UNKNOWN, bestSize
 
 
+def findInvalid(shape, maxSteps):
+    best = []
+    bestSize = 0
+    steps = maxSteps // 12
+
+    for o in range(12):
+        oriented = orient(shape, WIDGETS[0], o)
+        allTilings = [[oriented]]
+        allUsed = [set(oriented)]
+
+
+        for _ in range(steps):
+            if not allTilings:
+                return Behavior.INVALID, bestSize + 1
+
+            shapes = allTilings.pop()
+            used = allUsed.pop()
+            for widget in WIDGETS:
+                if widget not in used:
+                    break
+
+            for orientation in range(12):
+                newShape = orient(shape, widget, orientation)
+                newSet = set(newShape)
+                if used & newSet:
+                    continue
+                newShapes = shapes + [newShape]
+                if len(newShapes) > bestSize:
+                    best = newShapes
+                    bestSize = len(newShapes)
+
+                allTilings.append(newShapes)
+                allUsed.append(used | newSet)
+
+    return Behavior.UNKNOWN, bestSize
+
+
 if __name__ == '__main__':
     PROCESSES = 4
     BATCH_SIZE = 100
     MAX_STEPS = 1000
+    FUNCTION = explore
 
     with open('shapes/unknown.txt') as f:
         shapes = [eval(l) for l in f.readlines()]
@@ -103,7 +141,7 @@ if __name__ == '__main__':
         for i in range(0, len(shapes), BATCH_SIZE)
     ]
     for b in batches:
-        results = pool.starmap(explore, [(s, MAX_STEPS) for s in b])
+        results = pool.starmap(FUNCTION, [(s, MAX_STEPS) for s in b])
         print(f'~~ {i: 5d} - {min(i + BATCH_SIZE, len(shapes)) - 1: 5d} ~~')
         for shape, (class_, size) in zip(b, results):
             className = str(class_).lower().split('.')[1]
@@ -116,4 +154,4 @@ if __name__ == '__main__':
                 print(f'{i: 5d}', className, size)
 
             i += 1
-    
+
