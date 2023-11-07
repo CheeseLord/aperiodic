@@ -16,14 +16,23 @@ class Behavior(Enum):
 
 
 def classify(shape, maxDepth=6):
-    oriented = orient(shape, WIDGETS[0], 0)
-    allTilings = [[oriented]]
-    allUsed = [set(oriented)]
-    for i in range(2, maxDepth + 1):
-        newTilings = []
-        newUsed = []
-        # Expand each tiling in each possible way.
-        for shapes, used in zip(allTilings, allUsed):
+    for o in range(12):
+        oriented = orient(shape, WIDGETS[0], o)
+        allTilings = [[oriented]]
+        allUsed = [set(oriented)]
+
+        bestSize = 1
+        invalid = True
+        while allTilings:
+            shapes = allTilings.pop()
+            used = allUsed.pop()
+
+            if isRepeating(shapes):
+                return Behavior.PERIODIC, len(shapes)
+            if len(shapes) == maxDepth:
+                invalid = False
+                continue
+
             for widget in WIDGETS:
                 if widget not in used:
                     break
@@ -34,15 +43,13 @@ def classify(shape, maxDepth=6):
                 if used & newSet:
                     continue
                 newShapes = shapes + [newShape]
-                if isRepeating(newShapes):
-                    return Behavior.PERIODIC, i
-                newTilings.append(newShapes)
-                newUsed.append(used | newSet)
+                bestSize = max(bestSize, len(newShapes))
 
-        if not newTilings:
-            return Behavior.INVALID, i
-        allTilings = newTilings
-        allUsed = newUsed
+                allTilings.append(newShapes)
+                allUsed.append(used | newSet)
+
+        if invalid:
+            return Behavior.INVALID, bestSize + 1
 
     return Behavior.UNKNOWN, maxDepth
 
@@ -78,10 +85,10 @@ def explore(shape, maxSteps):
             allTilings.append(newShapes)
             allUsed.append(used | newSet)
 
-    # TODO: Handle other lengths.
-    for length in [4, 6, 8]:
-        # TODO: Handle larger depths.
-        for shapes in itertools.combinations(best[:15], length):
+    # TODO: Handle larger depths.
+    relevant = best[:15]
+    for length in range(2, len(relevant), 2):
+        for shapes in itertools.combinations(relevant, length):
             if isRepeating(shapes):
                 return Behavior.PERIODIC, len(shapes)
 

@@ -41,7 +41,7 @@ def isRepeating(shapes):
         else:
             return True
 
-    if count == 4:
+    if count > 2 and count % 2 == 0:
         for a, b, c in itertools.product(range(count), repeat=3):
             a = np.array([a // 2, a % 2], dtype=int)
             b = np.array([b // 2, b % 2], dtype=int)
@@ -53,7 +53,7 @@ def isRepeating(shapes):
                     + b * (z + x - y)
                     + c * (x + y - z)
                 ) // 2
-                if not np.any(color % 2):
+                if not np.any(color % (count // 2, 2)):
                     break
             else:
                 return True
