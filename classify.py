@@ -86,7 +86,7 @@ def explore(shape, maxSteps):
             allUsed.append(used | newSet)
 
     # TODO: Handle larger depths.
-    relevant = best[:15]
+    relevant = best[:17]
     for length in range(2, len(relevant), 2):
         for shapes in itertools.combinations(relevant, length):
             if isRepeating(shapes):
