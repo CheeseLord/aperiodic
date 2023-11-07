@@ -85,8 +85,12 @@ def explore(shape, maxSteps):
             allTilings.append(newShapes)
             allUsed.append(used | newSet)
 
+        # TODO: Handle larger depths.
+        if bestSize == 30:
+            break
+
     # TODO: Handle larger depths.
-    relevant = best[:17]
+    relevant = best[:18]
     for length in range(2, len(relevant), 2):
         for shapes in itertools.combinations(relevant, length):
             if isRepeating(shapes):

@@ -58,6 +58,41 @@ def isRepeating(shapes):
             else:
                 return True
 
+    if count == 8:
+        for a, b, c in itertools.product(range(count), repeat=3):
+            a = np.array([a // 4, (a // 2) % 2, a % 2], dtype=int)
+            b = np.array([b // 4, (b // 2) % 2, b % 2], dtype=int)
+            c = np.array([c // 4, (c // 2) % 2, c % 2], dtype=int)
+
+            for x, y, z in vectors:
+                color = (
+                    a * (y + z - x)
+                    + b * (z + x - y)
+                    + c * (x + y - z)
+                ) // 2
+                if not np.any(color % (2, 2, 2)):
+                    break
+            else:
+                return True
+
+
+    if count == 9:
+        for a, b, c in itertools.product(range(count), repeat=3):
+            a = np.array([a // 3, a % 3], dtype=int)
+            b = np.array([b // 3, b % 3], dtype=int)
+            c = np.array([c // 3, c % 3], dtype=int)
+
+            for x, y, z in vectors:
+                color = (
+                    a * (y + z - x)
+                    + b * (z + x - y)
+                    + c * (x + y - z)
+                ) // 2
+                if not np.any(color % (3, 3)):
+                    break
+            else:
+                return True
+
     # FIXME: There are other lattices for composite counts.
 
     return False
