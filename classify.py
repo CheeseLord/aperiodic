@@ -3,10 +3,9 @@ import itertools
 import multiprocessing as mp
 import numpy as np
 import random
-import time
 
 from geometry import WIDGETS, orient
-from periodic import isRepeating
+from periodic import isRepeating, isAlmostRepeating
 
 
 class Behavior(Enum):
@@ -90,11 +89,12 @@ def explore(shape, maxSteps):
             break
 
     # TODO: Handle larger depths.
-    relevant = best[:18]
-    for length in range(2, len(relevant), 2):
+    relevant = best[:15]
+    # TODO: Handle longer subsets.
+    for length in range(1, 12, 2):
         for shapes in itertools.combinations(relevant, length):
-            if isRepeating(shapes):
-                return Behavior.PERIODIC, len(shapes)
+            if isAlmostRepeating(shapes):
+                return Behavior.PERIODIC, len(shapes) + 1
 
     return Behavior.UNKNOWN, bestSize
 
