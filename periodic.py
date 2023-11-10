@@ -187,7 +187,7 @@ def periodicSampling(shape, period):
 if __name__ == '__main__':
     with open('shapes/unknown.txt') as f:
         shapes = [eval(l) for l in f.readlines()]
-    for i, shape in enumerate(shapes):
+    for i, shape in enumerate(shapes, start=1):
         periodic = periodicSampling(shape, 6)
         print(i, periodic)
         if periodic:

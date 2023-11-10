@@ -88,10 +88,10 @@ def explore(shape, maxSteps):
         if bestSize == 30:
             break
 
-    # TODO: Handle larger depths.
-    relevant = best[:15]
+    # TODO: Handle larger subsets.
+    relevant = random.sample(best, min(bestSize, 15))
     # TODO: Handle longer subsets.
-    for length in range(1, 12, 2):
+    for length in [3, 5, 7]:
         for shapes in itertools.combinations(relevant, length):
             if isAlmostRepeating(shapes):
                 return Behavior.PERIODIC, len(shapes) + 1
@@ -139,21 +139,22 @@ def findInvalid(shape, maxSteps):
 if __name__ == '__main__':
     PROCESSES = 4
     BATCH_SIZE = 100
-    MAX_STEPS = 1000
+    MAX_STEPS = 2000
     FUNCTION = explore
 
     with open('shapes/unknown.txt') as f:
         shapes = [eval(l) for l in f.readlines()]
 
-    i = 0
     pool = mp.Pool(processes=PROCESSES)
     batches = [
         shapes[i: i + BATCH_SIZE]
         for i in range(0, len(shapes), BATCH_SIZE)
     ]
+
+    i = 0
     for b in batches:
         results = pool.starmap(FUNCTION, [(s, MAX_STEPS) for s in b])
-        print(f'~~ {i: 5d} - {min(i + BATCH_SIZE, len(shapes)) - 1: 5d} ~~')
+        print(f'~~ {i + 1: 5d} - {min(i + BATCH_SIZE, len(shapes)): 5d} ~~')
         for shape, (class_, size) in zip(b, results):
             className = str(class_).lower().split('.')[1]
             if class_ == Behavior.UNKNOWN:
@@ -162,7 +163,7 @@ if __name__ == '__main__':
             else:
                 with open(f'shapes/working/{className}-{size}.txt', 'a') as f:
                     f.write(f'{shape}\n')
-                print(f'{i: 5d}', className, size)
+                print(f'{i + 1: 5d}', className, size)
 
             i += 1
 
