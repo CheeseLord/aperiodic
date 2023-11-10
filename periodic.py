@@ -185,15 +185,19 @@ def periodicSampling(shape, period):
 
 
 if __name__ == '__main__':
-    with open('shapes/unknown.txt') as f:
-        shapes = [eval(l) for l in f.readlines()]
+    PERIOD = 6
+
+    with open(f'shapes/unknown.txt') as f:
+        shapes = [eval(l) for l in f.readlines()][::-1]
     for i, shape in enumerate(shapes, start=1):
-        periodic = periodicSampling(shape, 6)
+        periodic = periodicSampling(shape, PERIOD)
         print(i, periodic)
+        """
         if periodic:
-            with open(f'shapes/working/periodic-6.txt', 'a') as f:
+            with open(f'shapes/working/periodic-{PERIOD}.txt', 'a') as f:
                 f.write(f'{shape}\n')
         else:
             with open(f'shapes/working/unknown.txt', 'a') as f:
                 f.write(f'{shape}\n')
+        """
 

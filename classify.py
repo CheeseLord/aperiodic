@@ -90,7 +90,7 @@ def explore(shape, maxSteps):
 
     # TODO: Handle larger subsets.
     relevant = random.sample(best, min(bestSize, 15))
-    # TODO: Handle longer subsets.
+    # TODO: Handle other lengths.
     for length in [3, 5, 7]:
         for shapes in itertools.combinations(relevant, length):
             if isAlmostRepeating(shapes):
