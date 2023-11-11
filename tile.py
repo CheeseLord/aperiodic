@@ -108,9 +108,14 @@ class InteractiveTiling:
 
 
 if __name__ == '__main__':
+    import argparse
     import random
 
-    with open('shapes/unknown.txt') as f:
+    parser = argparse.ArgumentParser()
+    parser.add_argument('shape_file', nargs='?', default='shapes/unknown.txt')
+    args = parser.parse_args()
+
+    with open(args.shape_file) as f:
         shapes = [eval(l) for l in f.readlines()]
 
     fig = plt.figure()
