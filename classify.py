@@ -1,4 +1,5 @@
 from enum import Enum
+import exact_cover
 import itertools
 import multiprocessing as mp
 import numpy as np
@@ -14,7 +15,7 @@ class Behavior(Enum):
     UNKNOWN = 2
 
 
-def classify(shape, maxDepth=6):
+def classifyDeterministic(shape, maxDepth=6):
     for o in range(12):
         oriented = orient(shape, WIDGETS[0], o)
         allTilings = [[oriented]]
@@ -53,7 +54,7 @@ def classify(shape, maxDepth=6):
     return Behavior.UNKNOWN, maxDepth
 
 
-def explore(shape, maxSteps):
+def classifyDFS(shape, maxSteps):
     oriented = orient(shape, WIDGETS[0], np.random.randint(12))
     allTilings = [[oriented]]
     allUsed = [set(oriented)]
@@ -99,6 +100,39 @@ def explore(shape, maxSteps):
     return Behavior.UNKNOWN, bestSize
 
 
+def classifyCover(shape, numWidgets):
+    widgets = {w: i for i, w in enumerate(WIDGETS[:numWidgets])}
+
+    # Find the subsets that can be covered by a single tile.
+    subsets = {}
+    for widget in widgets:
+        for orientation in range(12):
+            newShape = sorted(orient(shape, widget, orientation))
+            s = [widgets[w] for w in newShape if w in widgets]
+            subsets[tuple(sorted(s))] = newShape
+    indices = random.sample(list(subsets), len(subsets))
+
+    # Find an exact cover for the widgets.
+    arr = np.zeros((len(indices), numWidgets), dtype=bool)
+    for i, s in enumerate(indices):
+        arr[i, s] = True
+    try:
+        cover = exact_cover.get_exact_cover(arr)
+        cover = [subsets[indices[i]] for i in cover]
+    except exact_cover.error.NoSolution:
+        return Behavior.INVALID, 0
+
+    # TODO: Handle larger subsets.
+    relevant = random.sample(cover, min(len(cover), 15))
+    # TODO: Handle other periods.
+    for period in [6, 8]:
+        for shapes in itertools.combinations(relevant, period - 1):
+            if isAlmostRepeating(shapes):
+                return Behavior.PERIODIC, period
+
+    return Behavior.UNKNOWN, 0
+
+
 def findInvalid(shape, maxSteps):
     best = []
     bestSize = 0
@@ -139,7 +173,8 @@ def findInvalid(shape, maxSteps):
 if __name__ == '__main__':
     PROCESSES = 4
     BATCH_SIZE = 100
-    MAX_STEPS = 2000
+    MAX_STEPS = 2000  # DFS
+    COVER_SIZE = 40  # Cover
 
     with open('shapes/unknown.txt') as f:
         shapes = [eval(l) for l in f.readlines()]
@@ -152,7 +187,8 @@ if __name__ == '__main__':
 
     i = 0
     for b in batches:
-        results = pool.starmap(explore, [(s, MAX_STEPS) for s in b])
+        #results = pool.starmap(classifyDFS, [(s, MAX_STEPS) for s in b])
+        results = pool.starmap(classifyCover, [(s, COVER_SIZE) for s in b])
         print(f'~~ {i + 1: 5d} - {min(i + BATCH_SIZE, len(shapes)): 5d} ~~')
         for shape, (class_, size) in zip(b, results):
             className = str(class_).lower().split('.')[1]
