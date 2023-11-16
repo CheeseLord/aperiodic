@@ -130,7 +130,7 @@ def classifyCover(shape, numWidgets):
             if isAlmostRepeating(shapes):
                 return Behavior.PERIODIC, period
 
-    return Behavior.UNKNOWN, 0
+    return Behavior.UNKNOWN, len(cover)
 
 
 def findInvalid(shape, maxSteps):
@@ -174,7 +174,7 @@ if __name__ == '__main__':
     PROCESSES = 4
     BATCH_SIZE = 100
     MAX_STEPS = 2000  # DFS
-    COVER_SIZE = 40  # Cover
+    COVER_SIZE = 50  # Cover
 
     with open('shapes/unknown.txt') as f:
         shapes = [eval(l) for l in f.readlines()]
@@ -187,8 +187,8 @@ if __name__ == '__main__':
 
     i = 0
     for b in batches:
-        #results = pool.starmap(classifyDFS, [(s, MAX_STEPS) for s in b])
-        results = pool.starmap(classifyCover, [(s, COVER_SIZE) for s in b])
+        results = pool.starmap(classifyDFS, [(s, MAX_STEPS) for s in b])
+        # results = pool.starmap(classifyCover, [(s, COVER_SIZE) for s in b])
         print(f'~~ {i + 1: 5d} - {min(i + BATCH_SIZE, len(shapes)): 5d} ~~')
         for shape, (class_, size) in zip(b, results):
             className = str(class_).lower().split('.')[1]
