@@ -1,4 +1,5 @@
 import exact_cover
+import multiprocessing as mp
 import numpy as np
 import random
 import time
@@ -23,8 +24,8 @@ def cover(shape, numWidgets):
     for i, s in enumerate(indices):
         arr[i, s] = True
     try:
-        cover = exact_cover.get_exact_cover(arr)
-        return [subsets[indices[i]] for i in cover]
+        cover_ = exact_cover.get_exact_cover(arr)
+        return [subsets[indices[i]] for i in cover_]
     except exact_cover.error.NoSolution:
         return None
 
@@ -35,27 +36,42 @@ def bestCover(shape):
         start = time.time()
         shapes = cover(shape, numWidgets)
         if shapes is None:
-            return None
-        if time.time() - start > 300:
+            return None, numWidgets
+        if time.time() - start > 60:
             return shapes, numWidgets
-        if numWidgets >= 10 ** 4:
+        if numWidgets >= 300:
             return shapes, numWidgets
         numWidgets += 10
 
 
 if __name__ == '__main__':
-    COVER_SIZE = 200
+    PROCESSES = 4
+    BATCH_SIZE = 100
 
     with open('shapes/unknown.txt') as f:
         shapes = [eval(l) for l in f.readlines()]
-    for i, shape in enumerate(shapes, start=1):
-        if i % 100 == 0:
-            print(i)
-        if cover(shape, COVER_SIZE) is None:
-            print(i, shape)
-            with open(f'shapes/working/invalid-cover.txt', 'a') as f:
-                f.write(f'{shape}\n')
-        else:
-            with open(f'shapes/working/unknown.txt', 'a') as f:
-                f.write(f'{shape}\n')
+
+    pool = mp.Pool(processes=PROCESSES)
+    batches = [
+        shapes[i: i + BATCH_SIZE]
+        for i in range(0, len(shapes), BATCH_SIZE)
+    ]
+
+    i = 0
+    for b in batches:
+        results = pool.map(bestCover, b)
+        print(f'~~ {i + 1: 5d} - {min(i + BATCH_SIZE, len(shapes)): 5d} ~~')
+
+        for shape, (cover_, numWidgets) in zip(b, results):
+            if cover_ is None:
+                with open(
+                    f'shapes/working/invalid-cover-{numWidgets}.txt', 'a'
+                ) as f:
+                    f.write(f'{shape}\n')
+                print(f'{i + 1: 5d} invalid {numWidgets}')
+            else:
+                with open(f'shapes/working/unknown.txt', 'a') as f:
+                    f.write(f'{shape}\n')
+
+            i += 1
 
