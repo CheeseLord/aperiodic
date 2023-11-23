@@ -92,7 +92,7 @@ def classifyDFS(shape, maxSteps):
     # TODO: Handle larger subsets.
     relevant = random.sample(best, min(bestSize, 15))
     # TODO: Handle other periods.
-    for period in [6, 8]:
+    for period in [6, 8, 12]:
         for shapes in itertools.combinations(relevant, period - 1):
             if isAlmostRepeating(shapes):
                 return Behavior.PERIODIC, period
@@ -173,7 +173,7 @@ def findInvalid(shape, maxSteps):
 if __name__ == '__main__':
     PROCESSES = 4
     BATCH_SIZE = 100
-    MAX_STEPS = 2000  # DFS
+    MAX_STEPS = 1000  # DFS
     COVER_SIZE = 50  # Cover
 
     with open('shapes/unknown.txt') as f:

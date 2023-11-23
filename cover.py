@@ -31,17 +31,24 @@ def cover(shape, numWidgets):
 
 
 def bestCover(shape):
-    numWidgets = 10
+    maxTime = 60
+    minWidgets = 210
+    maxWidgets = 230
+    widgetStep = 10
+
+    shapes = []
+    numWidgets = minWidgets
     while True:
         start = time.time()
         shapes = cover(shape, numWidgets)
+        end = time.time()
         if shapes is None:
             return None, numWidgets
-        if time.time() - start > 60:
+        if end - start > maxTime:
             return shapes, numWidgets
-        if numWidgets >= 300:
+        if numWidgets >= maxWidgets:
             return shapes, numWidgets
-        numWidgets += 10
+        numWidgets += widgetStep
 
 
 if __name__ == '__main__':
