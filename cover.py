@@ -3,6 +3,7 @@ import multiprocessing as mp
 import numpy as np
 import random
 import time
+import timeout_decorator
 
 from geometry import WIDGETS, orient
 
@@ -52,33 +53,40 @@ def bestCover(shape):
 
 
 if __name__ == '__main__':
-    PROCESSES = 4
-    BATCH_SIZE = 100
+    NUM_WIDGETS = 300
+    TIMEOUT = 600
 
+    wrapped = timeout_decorator.timeout(TIMEOUT, use_signals=False)(cover)
     with open('shapes/unknown.txt') as f:
         shapes = [eval(l) for l in f.readlines()]
 
-    pool = mp.Pool(processes=PROCESSES)
-    batches = [
-        shapes[i: i + BATCH_SIZE]
-        for i in range(0, len(shapes), BATCH_SIZE)
-    ]
+    invalid = 0
+    timeouts = 0
+    for i, shape in enumerate(shapes, start=1):
+        if i % 100 == 1:
+            print(f'~~ Starting {i: 5d} - {min(i + 99, len(shapes))} ~~')
 
-    i = 0
-    for b in batches:
-        results = pool.map(bestCover, b)
-        print(f'~~ {i + 1: 5d} - {min(i + BATCH_SIZE, len(shapes)): 5d} ~~')
-
-        for shape, (cover_, numWidgets) in zip(b, results):
+        try:
+            cover_ = wrapped(shape, NUM_WIDGETS)
+        except timeout_decorator.timeout_decorator.TimeoutError:
+            with open(f'shapes/working/unknown.txt', 'a') as f:
+                f.write(f'{shape}\n')
+            timeouts += 1
+        else:
             if cover_ is None:
                 with open(
-                    f'shapes/working/invalid-cover-{numWidgets}.txt', 'a'
+                    f'shapes/working/invalid-cover-{NUM_WIDGETS}.txt', 'a'
                 ) as f:
                     f.write(f'{shape}\n')
-                print(f'{i + 1: 5d} invalid {numWidgets}')
+                invalid += 1
+                print(f'{i: 5d} invalid')
             else:
                 with open(f'shapes/working/unknown.txt', 'a') as f:
                     f.write(f'{shape}\n')
 
-            i += 1
+        if i % 100 == 0 or i == len(shapes):
+            print(f'~~ Finished {(i - 1) // 100 * 100 + 1: 5d} - {i} ~~')
+
+    print(f'Invalid: {invalid}')
+    print(f'Timeouts: {timeouts}')
 
