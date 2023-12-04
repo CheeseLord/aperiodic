@@ -156,7 +156,7 @@ def periodic2(shape):
     return False
 
 
-def periodicSampling(shape, period):
+def periodicSampling(shape, period, samples):
     if period % 2 != 0:
         return False
 
@@ -172,7 +172,7 @@ def periodicSampling(shape, period):
 
     offsets = list(itertools.product(range(period // 2), repeat=3))
 
-    for _ in range(10 ** 5):
+    for _ in range(samples):
         shapes = []
         for _ in range(period - 1):
             v = random.choice(variants).copy()
@@ -185,19 +185,13 @@ def periodicSampling(shape, period):
 
 
 if __name__ == '__main__':
-    PERIOD = 6
+    with open('gallery/tiling007.txt') as f:
+        shapes = [eval(l) for l in f.readlines()]
+    shape = orient(shapes[0], ((0, 0, 0), (0, 0, 1)), 0)
 
-    with open(f'shapes/unknown.txt') as f:
-        shapes = [eval(l) for l in f.readlines()][::-1]
-    for i, shape in enumerate(shapes, start=1):
-        periodic = periodicSampling(shape, PERIOD)
-        print(i, periodic)
-        """
-        if periodic:
-            with open(f'shapes/working/periodic-{PERIOD}.txt', 'a') as f:
-                f.write(f'{shape}\n')
-        else:
-            with open(f'shapes/working/unknown.txt', 'a') as f:
-                f.write(f'{shape}\n')
-        """
+    for period in range(4, 20, 2):
+        print(f'Trying {period}')
+        if periodicSampling(shape, period, 10 ** 7):
+            print('PERIODIC')
+            break
 

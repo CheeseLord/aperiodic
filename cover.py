@@ -53,8 +53,8 @@ def bestCover(shape):
 
 
 if __name__ == '__main__':
-    NUM_WIDGETS = 500
-    TIMEOUT = 180
+    NUM_WIDGETS = 700
+    TIMEOUT = 10
 
     wrapped = timeout_decorator.timeout(TIMEOUT, use_signals=False)(cover)
     with open('shapes/unknown.txt') as f:
