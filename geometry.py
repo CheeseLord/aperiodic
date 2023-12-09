@@ -60,7 +60,7 @@ def getNeighbors(widget):
 WIDGETS = []
 _used = set()
 _toExpand = [((0, 0, 0), (1, 0, 0))]
-while len(WIDGETS) < 10000:
+while len(WIDGETS) < 20000:
     w = _toExpand[0]
     _toExpand = _toExpand[1:]
     if w in _used:

@@ -112,10 +112,10 @@ if __name__ == '__main__':
     import random
 
     parser = argparse.ArgumentParser()
-    parser.add_argument('shape_file', nargs='?', default='shapes/unknown.txt')
+    parser.add_argument('shapeFile', nargs='?', default='shapes/unknown.txt')
     args = parser.parse_args()
 
-    with open(args.shape_file) as f:
+    with open(args.shapeFile) as f:
         shapes = [eval(l) for l in f.readlines()]
 
     fig = plt.figure()

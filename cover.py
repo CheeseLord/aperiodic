@@ -53,7 +53,7 @@ def bestCover(shape):
 
 
 if __name__ == '__main__':
-    NUM_WIDGETS = 10000
+    NUM_WIDGETS = 20000
     TIMEOUT = 30
 
     wrapped = timeout_decorator.timeout(TIMEOUT, use_signals=False)(cover)
@@ -83,6 +83,10 @@ if __name__ == '__main__':
             else:
                 with open(f'shapes/working/unknown.txt', 'a') as f:
                     f.write(f'{shape}\n')
+                print(f'{i: 5d} finished')
+                for s in cover_:
+                    with open(f'shapes/working/tiling{i:03d}.txt', 'a') as f:
+                        f.write(f'{s}\n')
 
         if i % 100 == 0 or i == len(shapes):
             print(f'~~ Finished {(i - 1) // 100 * 100 + 1: 5d} - {i} ~~')

@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 from mpl_toolkits.mplot3d.art3d import Poly3DCollection
 import numpy as np
+from scipy.spatial import ConvexHull
 
 
 # Template for octahedron slice.
@@ -68,26 +69,55 @@ def drawShapes(ax, shapes):
                 faces = np.roll(OCTAHEDRON_FACES, index, axis=2)
                 faces[:, :, index] *= direction[index]
                 faces += center
-
-                lower = np.minimum(lower, np.min(np.min(faces, axis=0), axis=0))
-                upper = np.maximum(upper, np.max(np.max(faces, axis=0), axis=0))
-
-                poly = Poly3DCollection(faces)
-                poly.set_color(color)
-                poly.set_alpha(0.3)
-                poly.set_edgecolor('k')
-                ax.add_collection3d(poly)
             else:
                 faces = TETRAHEDRON_FACES * direction + center
 
-                lower = np.minimum(lower, np.min(np.min(faces, axis=0), axis=0))
-                upper = np.maximum(upper, np.max(np.max(faces, axis=0), axis=0))
+            lower = np.minimum(lower, np.min(np.min(faces, axis=0), axis=0))
+            upper = np.maximum(upper, np.max(np.max(faces, axis=0), axis=0))
 
-                poly = Poly3DCollection(faces)
-                poly.set_color(color)
-                poly.set_alpha(0.3)
-                poly.set_edgecolor('k')
-                ax.add_collection3d(poly)
+            poly = Poly3DCollection(faces)
+            poly.set_color(color)
+            poly.set_alpha(0.3)
+            poly.set_edgecolor('k')
+            ax.add_collection3d(poly)
+
+    width = np.max(upper - lower) / 2 + 0.1
+    center = (upper + lower) / 2
+
+    ax.axes.set_xlim3d(center[0] - width, center[0] + width)
+    ax.axes.set_ylim3d(center[1] - width, center[1] + width)
+    ax.axes.set_zlim3d(center[2] - width, center[2] + width)
+
+
+def drawHull(ax, shapes, color):
+    lower = np.zeros(3, dtype=float)
+    upper = np.zeros(3, dtype=float)
+
+    vertices = []
+    for shape in shapes:
+        for center, direction in shape:
+            if 0 in direction:
+                index = (np.array(direction) != 0).argmax()
+                faces = np.roll(OCTAHEDRON_FACES, index, axis=2)
+                faces[:, :, index] *= direction[index]
+                faces += center
+            else:
+                faces = TETRAHEDRON_FACES * direction + center
+
+            lower = np.minimum(lower, np.min(np.min(faces, axis=0), axis=0))
+            upper = np.maximum(upper, np.max(np.max(faces, axis=0), axis=0))
+
+            for face in faces:
+                for vertex in face:
+                    vertices.append(vertex)
+
+    vertices = np.array(vertices)
+    hull = ConvexHull(vertices)
+    poly = Poly3DCollection(vertices[hull.simplices])
+    poly.set_color(color)
+    poly.set_alpha(0.3)
+    poly.set_edgecolor('k')
+    ax.add_collection3d(poly)
 
     width = np.max(upper - lower) / 2 + 0.1
     center = (upper + lower) / 2
