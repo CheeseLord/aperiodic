@@ -57,6 +57,8 @@ def isRepeating(shapes):
     if len(repeats) < 3:
         return False, 0
 
+    print(repeats)
+
     # Get the fundamental region.
     low = np.zeros(3, dtype=int)
     high = np.zeros(3, dtype=int)
@@ -82,16 +84,21 @@ def isRepeating(shapes):
             if center in centers:
                 fundamental.append(shape)
                 break
+
     for offsets in more_itertools.powerset(repeats):
         if not offsets:
             continue
-        result = fundamental
-        for offset in offsets:
-            result = translate(result, offset)
-        fundamental = [
-            shape for shape in fundamental
-            if shape not in overlap(fundamental, result)
-        ]
+        for signs in itertools.product([1, -1], repeat=len(offsets) - 1):
+            signs = (1,) + signs
+            result = fundamental
+            for offset, sign in zip(offsets, signs):
+                result = translate(result, [x * sign for x in offset])
+            fundamental = [
+                shape for shape in fundamental
+                if shape not in overlap(fundamental, result)
+            ]
+
+    print(fundamental)
 
     return periodic.isRepeating(fundamental), len(fundamental)
 
@@ -119,6 +126,6 @@ if __name__ == '__main__':
         index = int(name.split('.')[0][-3:])
         s = unknown[index - 1]
 
-        with open(f'shapes/working/periodic-{period}', 'a') as f:
+        with open(f'shapes/working/periodic-{period}.txt', 'a') as f:
             f.write(f'{s}\n')
 

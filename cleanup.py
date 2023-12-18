@@ -55,5 +55,6 @@ def correct():
 
 
 if __name__ == '__main__':
-    cleanup()
+    #cleanup()
+    correct()
 
