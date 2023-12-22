@@ -38,8 +38,7 @@ def overlap(shapes, other):
     return [list(x) for x in shapes & other]
 
 
-def isRepeating(shapes):
-    # Find a basis for large repeats.
+def findBasis(shapes):
     possible = [
         offset for offset in itertools.product(range(-10, 11), repeat=3)
         if sum(offset) % 2 == 0 and offset > (0, 0, 0)
@@ -47,17 +46,20 @@ def isRepeating(shapes):
     possible = sorted(possible, key=np.linalg.norm)
     repeats = []
     for offset in possible:
-        if len(overlap(shapes, translate(shapes, offset))) < len(shapes) // 3:
+        if len(overlap(shapes, translate(shapes, offset))) < len(shapes) / 3:
             continue
         mat = np.array(repeats + [offset])
         if len(sympy.Matrix(mat).T.rref()[1]) > len(repeats):
             repeats.append(offset)
             if len(repeats) == 3:
                 break
+    return repeats
+
+
+def isRepeating(shapes):
+    repeats = findBasis(shapes)
     if len(repeats) < 3:
         return False, 0
-
-    print(repeats)
 
     # Get the fundamental region.
     low = np.zeros(3, dtype=int)
@@ -88,25 +90,25 @@ def isRepeating(shapes):
     for offsets in more_itertools.powerset(repeats):
         if not offsets:
             continue
-        for signs in itertools.product([1, -1], repeat=len(offsets) - 1):
-            signs = (1,) + signs
+        for coeffs in itertools.product(range(-10, 11), repeat=len(offsets)):
+            if not any(coeffs):
+                continue
             result = fundamental
-            for offset, sign in zip(offsets, signs):
+            for offset, sign in zip(offsets, coeffs):
                 result = translate(result, [x * sign for x in offset])
             fundamental = [
                 shape for shape in fundamental
                 if shape not in overlap(fundamental, result)
             ]
 
-    print(fundamental)
+    print(repeats)
+    print(len(fundamental), round(np.linalg.det(repeats)))
 
     return periodic.isRepeating(fundamental), len(fundamental)
 
 
 if __name__ == '__main__':
     import os
-
-    from geometry import orient
 
 
     PATH = 'gallery/20k'
