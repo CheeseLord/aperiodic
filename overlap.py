@@ -3,33 +3,8 @@ import more_itertools
 import numpy as np
 import sympy
 
+from geometry import translate
 import periodic
-
-
-def randomTransformation(shapes):
-    offset = -np.array(shapes)[
-        np.random.randint(len(shapes)),
-        np.random.randint(len(shapes[0])),
-        0,
-    ]
-    other = translate(shapes, offset)
-
-    # FIXME: Handle rotation.
-
-    return other
-
-
-def translate(shapes, offset):
-    other = np.array(shapes)
-    other[:, :, 0] += offset
-    other = [
-        [
-            tuple(
-                tuple(x) for x in widget
-            ) for widget in shape
-        ] for shape in other
-    ]
-    return other
 
 
 def overlap(shapes, other):
@@ -46,13 +21,13 @@ def findBasis(shapes):
     possible = sorted(possible, key=np.linalg.norm)
     repeats = []
     for offset in possible:
-        if len(overlap(shapes, translate(shapes, offset))) < len(shapes) / 3:
-            continue
         mat = np.array(repeats + [offset])
-        if len(sympy.Matrix(mat).T.rref()[1]) > len(repeats):
+        if len(sympy.Matrix(mat).T.rref()[1]) <= len(repeats):
+            continue
+        if len(overlap(shapes, translate(shapes, offset))) >= len(shapes) / 4:
             repeats.append(offset)
-            if len(repeats) == 3:
-                break
+        if len(repeats) == 3:
+            break
     return repeats
 
 
@@ -94,29 +69,33 @@ def isRepeating(shapes):
             if not any(coeffs):
                 continue
             result = fundamental
-            for offset, sign in zip(offsets, coeffs):
-                result = translate(result, [x * sign for x in offset])
+            for offset, coeff in zip(offsets, coeffs):
+                result = translate(result, [x * coeff for x in offset])
             fundamental = [
                 shape for shape in fundamental
                 if shape not in overlap(fundamental, result)
             ]
 
     print(repeats)
-    print(len(fundamental), round(np.linalg.det(repeats)))
+    print(len(fundamental), abs(round(np.linalg.det(repeats))))
 
-    return periodic.isRepeating(fundamental), len(fundamental)
+    return periodic.isRepeatingOffsets(fundamental, repeats), len(fundamental)
 
 
 if __name__ == '__main__':
     import os
 
 
-    PATH = 'gallery/20k'
+    PATH = 'gallery/10k'
 
     with open(f'{PATH}/unknown.txt') as f:
         unknown = [eval(l) for l in f.readlines()]
 
     for name in sorted(os.listdir(PATH)):
+        if name == 'unknown.txt':
+            continue
+        print(name)
+
         with open(f'{PATH}/{name}') as f:
             shapes = [eval(l) for l in f.readlines()]
 

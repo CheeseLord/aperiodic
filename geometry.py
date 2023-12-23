@@ -137,3 +137,16 @@ def orient(shape, widget, orientation):
 
         return [(tuple(x[0]), tuple(x[1])) for x in arr]
 
+
+def translate(shapes, offset):
+    other = np.array(shapes)
+    other[:, :, 0] += offset
+    other = [
+        [
+            tuple(
+                tuple(x) for x in widget
+            ) for widget in shape
+        ] for shape in other
+    ]
+    return other
+

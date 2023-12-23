@@ -3,7 +3,7 @@ import itertools
 import numpy as np
 import random
 
-from geometry import DIRECTIONS, orient
+from geometry import DIRECTIONS, orient, translate
 
 
 def isRepeating(shapes):
@@ -140,6 +140,27 @@ def isAlmostRepeating(shapes):
                 return True
 
     return False
+
+
+def isRepeatingOffsets(shapes, offsets):
+    if not shapes:
+        return False
+
+    # Check the area constraint.
+    if len(shapes) != abs(round(np.linalg.det(offsets))):
+        return False
+
+    # Copy the tiles into a large grid.
+    merged = []
+    for coeffs in itertools.product(range(10), repeat=3):
+        result = shapes
+        for offset, coeff in zip(offsets, coeffs):
+            result = translate(result, [x * coeff for x in offset])
+        for widget in result:
+            merged += widget
+
+    # Check for overlap.
+    return len(merged) == len(set(merged))
 
 
 def periodic2(shape):
