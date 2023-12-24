@@ -92,7 +92,7 @@ def classifyDFS(shape, maxSteps):
     # TODO: Handle larger subsets.
     relevant = random.sample(best, min(bestSize, 15))
     # TODO: Handle other periods.
-    for period in [6, 8]:
+    for period in [8, 12]:
         for shapes in itertools.combinations(relevant, period - 1):
             if isAlmostRepeating(shapes):
                 return Behavior.PERIODIC, period

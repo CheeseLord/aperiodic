@@ -2,8 +2,20 @@ from collections import Counter
 import itertools
 import numpy as np
 import random
+from sympy import divisors
 
-from geometry import DIRECTIONS, orient, translate
+from geometry import DIRECTIONS, getNeighbors, orient, translate
+
+
+def partitions(n, bound):
+    parts = []
+    for d in divisors(n)[1: -1]:
+        if d <= bound:
+            parts += [[d] + x for x in partitions(n // d, d)]
+    if n <= bound:
+        parts.append([n])
+
+    return sorted(parts, reverse=True)
 
 
 def isRepeating(shapes):
@@ -152,7 +164,7 @@ def isRepeatingOffsets(shapes, offsets):
 
     # Copy the tiles into a large grid.
     merged = []
-    for coeffs in itertools.product(range(10), repeat=3):
+    for coeffs in itertools.product(range(-5, 6), repeat=3):
         result = shapes
         for offset, coeff in zip(offsets, coeffs):
             result = translate(result, [x * coeff for x in offset])
@@ -160,7 +172,18 @@ def isRepeatingOffsets(shapes, offsets):
             merged += widget
 
     # Check for overlap.
-    return len(merged) == len(set(merged))
+    s = set(merged)
+    if len(merged) != len(s):
+        return False
+
+    # Check for density.
+    for shape in shapes:
+        for widget in shape:
+            for neighbor in getNeighbors(widget):
+                if neighbor not in s:
+                    return False
+
+    return True
 
 
 def periodic2(shape):

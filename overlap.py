@@ -86,7 +86,7 @@ if __name__ == '__main__':
     import os
 
 
-    PATH = 'gallery/10k'
+    PATH = 'gallery/200'
 
     with open(f'{PATH}/unknown.txt') as f:
         unknown = [eval(l) for l in f.readlines()]
@@ -103,7 +103,7 @@ if __name__ == '__main__':
         if not repeating:
             continue
 
-        print(name, period)
+        print(f'* {name} {period} *')
         index = int(name.split('.')[0][-3:])
         s = unknown[index - 1]
 
