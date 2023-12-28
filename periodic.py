@@ -2,20 +2,8 @@ from collections import Counter
 import itertools
 import numpy as np
 import random
-from sympy import divisors
 
 from geometry import DIRECTIONS, getNeighbors, orient, translate
-
-
-def partitions(n, bound):
-    parts = []
-    for d in divisors(n)[1: -1]:
-        if d <= bound:
-            parts += [[d] + x for x in partitions(n // d, d)]
-    if n <= bound:
-        parts.append([n])
-
-    return sorted(parts, reverse=True)
 
 
 def isRepeating(shapes):
@@ -228,14 +216,43 @@ def periodicSampling(shape, period, samples):
     return False
 
 
-if __name__ == '__main__':
-    with open('gallery/tiling007.txt') as f:
-        shapes = [eval(l) for l in f.readlines()]
-    shape = orient(shapes[0], ((0, 0, 0), (0, 0, 1)), 0)
+def periodicSubsetSampling(shapes, period, samples):
+    if period % 2 != 0:
+        return False
 
-    for period in range(4, 20, 2):
-        print(f'Trying {period}')
-        if periodicSampling(shape, period, 10 ** 7):
-            print('PERIODIC')
-            break
+    for _ in range(samples):
+        subset = random.sample(shapes, period - 1)
+        if isRepeating(subset):
+            return True
+
+    return False
+
+
+if __name__ == '__main__':
+    import os
+
+
+    PATH = 'gallery/20k'
+    samples = 1000000
+
+    with open(f'{PATH}/unknown.txt') as f:
+        unknown = [eval(l) for l in f.readlines()]
+
+    for name in sorted(os.listdir(PATH)):
+        if name == 'unknown.txt':
+            continue
+        print(name)
+
+        with open(f'{PATH}/{name}') as f:
+            shapes = [eval(l) for l in f.readlines()]
+
+        for period in [8, 12, 16]:
+            if periodicSubsetSampling(shapes, period, samples):
+                print(f'* {name} {period} *')
+                index = int(name.split('.')[0][-3:])
+                s = unknown[index - 1]
+
+                with open(f'shapes/working/periodic-{period}.txt', 'a') as f:
+                    f.write(f'{s}\n')
+                break
 
