@@ -15,7 +15,7 @@ def overlap(shapes, other):
 
 def findBasis(shapes):
     possible = [
-        offset for offset in itertools.product(range(-10, 11), repeat=3)
+        offset for offset in itertools.product(range(-5, 6), repeat=3)
         if sum(offset) % 2 == 0 and offset > (0, 0, 0)
     ]
     possible = sorted(possible, key=np.linalg.norm)
@@ -31,8 +31,61 @@ def findBasis(shapes):
     return repeats
 
 
+def findBasisCompound(shapes):
+    possible = [
+        offset for offset in itertools.product(range(-5, 6), repeat=3)
+        if sum(offset) % 2 == 0 and offset > (0, 0, 0)
+    ]
+    possible = sorted(possible, key=np.linalg.norm)
+
+    # Find the basis for each repeating section.
+    bases = []
+    while True:
+        for offset in possible:
+            subset = overlap(shapes, translate(shapes, offset))
+            if len(subset) >= len(shapes) / 4:
+                subset = [list(x) for x in
+                    {tuple(y) for y in subset} |
+                    {tuple(y) for y in translate(subset, [-z for z in offset])}
+                ]
+                basis = findBasis(subset)
+                if len(basis) == 3:
+                    bases.append(basis)
+                    break
+                else:
+                    continue
+        else:
+            break
+
+        shapes = [list(x) for x in
+            {tuple(y) for y in shapes} - {tuple(y) for y in subset}
+        ]
+
+    if len(bases) == 0:
+        return []
+    matrices = [np.array(b).T for b in bases]
+
+    # Combine the bases.
+    combined = []
+    for offset in possible:
+        mat = np.array(combined + [offset])
+        if len(sympy.Matrix(mat).T.rref()[1]) <= len(combined):
+            continue
+
+        for mat in matrices:
+            coeffs = np.linalg.solve(mat, offset)
+            if not np.all(np.isclose(coeffs, coeffs.astype(int), 0.0001)):
+                break
+        else:
+            combined.append(offset)
+            if len(combined) == 3:
+                break
+
+    return combined
+
+
 def isRepeating(shapes):
-    repeats = findBasis(shapes)
+    repeats = findBasisCompound(shapes)
     if len(repeats) < 3:
         return False, 0
 
@@ -86,7 +139,7 @@ if __name__ == '__main__':
     import os
 
 
-    PATH = 'gallery/200'
+    PATH = 'gallery/3k'
 
     with open(f'{PATH}/unknown.txt') as f:
         unknown = [eval(l) for l in f.readlines()]

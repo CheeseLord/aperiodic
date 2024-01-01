@@ -3,6 +3,7 @@ import numpy as np
 import random
 
 from numberTheory import indexToColor, partitions
+from periodic import isAlmostRepeating
 
 
 def buildRandomTiling(shape, period):
@@ -43,7 +44,7 @@ def buildRandomTiling(shape, period):
     # Add as many tiles as possible.
     shapes = []
     used = [set() for _ in colorings]
-    for tile in tiles:
+    for tile in tiles[:2000]:
         valid = False
         newUsed = []
 
@@ -53,7 +54,6 @@ def buildRandomTiling(shape, period):
                 continue
             u = u.copy()
 
-            # FIXME: This block is broken.
             for (x, y, z), direction in tile:
                 color = tuple((
                     (y + z - x) // 2 * coloring[0]
@@ -72,10 +72,13 @@ def buildRandomTiling(shape, period):
         if valid:
             shapes.append(tile)
             used = newUsed
-        if len(shapes) == period:
-            return shapes
+        if len(shapes) == period - 1:
+            break
 
+    if isAlmostRepeating(shapes):
+        return shapes
     return []
+
 
 if __name__ == '__main__':
     import matplotlib.pyplot as plt
@@ -84,14 +87,14 @@ if __name__ == '__main__':
     from periodic import isRepeating
 
 
-    period = 12
+    period = 8
 
     with open('shapes/unknown.txt') as f:
         shapes = [eval(l) for l in f.readlines()]
 
     count = 0
     for i, shape in enumerate(shapes, start=1):
-        for _ in range(10):
+        for _ in range(100):
             tiling = buildRandomTiling(shape, period)
             if tiling:
                 print(f'* {i} *')

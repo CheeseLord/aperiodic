@@ -222,7 +222,7 @@ def periodicSubsetSampling(shapes, period, samples):
 
     for _ in range(samples):
         subset = random.sample(shapes, period - 1)
-        if isRepeating(subset):
+        if isAlmostRepeating(subset):
             return True
 
     return False
@@ -232,8 +232,8 @@ if __name__ == '__main__':
     import os
 
 
-    PATH = 'gallery/20k'
-    samples = 1000000
+    PATH = 'gallery/220'
+    samples = 10000
 
     with open(f'{PATH}/unknown.txt') as f:
         unknown = [eval(l) for l in f.readlines()]
@@ -246,7 +246,7 @@ if __name__ == '__main__':
         with open(f'{PATH}/{name}') as f:
             shapes = [eval(l) for l in f.readlines()]
 
-        for period in [8, 12, 16]:
+        for period in [8, 12, 16, 18]:
             if periodicSubsetSampling(shapes, period, samples):
                 print(f'* {name} {period} *')
                 index = int(name.split('.')[0][-3:])
