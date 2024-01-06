@@ -1,10 +1,11 @@
+from heapq import nlargest
 import itertools
 import more_itertools
 import numpy as np
 import sympy
 
 from geometry import translate
-import periodic
+from periodic import isRepeatingOffsets
 
 
 def overlap(shapes, other):
@@ -13,90 +14,31 @@ def overlap(shapes, other):
     return [list(x) for x in shapes & other]
 
 
-def findBasis(shapes):
+def getBases(shapes):
+    # Find the offets with the largest overlap.
     possible = [
         offset for offset in itertools.product(range(-5, 6), repeat=3)
         if sum(offset) % 2 == 0 and offset > (0, 0, 0)
     ]
-    possible = sorted(possible, key=np.linalg.norm)
-    repeats = []
-    for offset in possible:
-        mat = np.array(repeats + [offset])
-        if len(sympy.Matrix(mat).T.rref()[1]) <= len(repeats):
-            continue
-        if len(overlap(shapes, translate(shapes, offset))) >= len(shapes) / 4:
-            repeats.append(offset)
-        if len(repeats) == 3:
-            break
-    return repeats
+    best = nlargest(
+        10, possible,
+        key=lambda offset: len(overlap(shapes, translate(shapes, offset)))
+    )
 
-
-def findBasisCompound(shapes):
-    possible = [
-        offset for offset in itertools.product(range(-5, 6), repeat=3)
-        if sum(offset) % 2 == 0 and offset > (0, 0, 0)
-    ]
-    possible = sorted(possible, key=np.linalg.norm)
-
-    # Find the basis for each repeating section.
+    # Find all linearly independent subsets.
     bases = []
-    while True:
-        for offset in possible:
-            subset = overlap(shapes, translate(shapes, offset))
-            if len(subset) >= len(shapes) / 4:
-                subset = [list(x) for x in
-                    {tuple(y) for y in subset} |
-                    {tuple(y) for y in translate(subset, [-z for z in offset])}
-                ]
-                basis = findBasis(subset)
-                if len(basis) == 3:
-                    bases.append(basis)
-                    break
-                else:
-                    continue
-        else:
-            break
+    for offsets in itertools.combinations(best, 3):
+        if len(sympy.Matrix(np.array(offsets)).rref()[1]) == 3:
+            bases.append(offsets)
 
-        shapes = [list(x) for x in
-            {tuple(y) for y in shapes} - {tuple(y) for y in subset}
-        ]
-
-    if len(bases) == 0:
-        return []
-    matrices = [np.array(b).T for b in bases]
-
-    # Combine the bases.
-    combined = []
-    for offset in possible:
-        mat = np.array(combined + [offset])
-        if len(sympy.Matrix(mat).T.rref()[1]) <= len(combined):
-            continue
-
-        for mat in matrices:
-            coeffs = np.linalg.solve(mat, offset)
-            if not np.all(np.isclose(coeffs, coeffs.astype(int), 0.0001)):
-                break
-        else:
-            combined.append(offset)
-            if len(combined) == 3:
-                break
-
-    return combined
+    return bases
 
 
-def isRepeating(shapes):
-    repeats = findBasisCompound(shapes)
-    if len(repeats) < 3:
-        return False, 0
-
-    # Get the fundamental region.
-    low = np.zeros(3, dtype=int)
-    high = np.zeros(3, dtype=int)
-    for subset in more_itertools.powerset(repeats):
+def getFundamental(shapes, basis):
+    # Find the lattice points in the fundamental domain.
+    for subset in more_itertools.powerset(basis):
         corner = np.sum(subset, axis=0)
-        low = np.minimum(low, corner)
-        high = np.maximum(high, corner)
-    mat = np.array(repeats).T
+    mat = np.array(basis).T
     possible = [
         offset for offset in itertools.product(range(-10, 11), repeat=3)
         if sum(offset) % 2 == 0
@@ -107,7 +49,7 @@ def isRepeating(shapes):
         if np.all((0 <= coeffs) & (coeffs < 1)):
             centers.append(center)
 
-    # Find the tiles in the fundamental region
+    # Find the tiles overlapping the fundamental domain.
     fundamental = []
     for shape in shapes:
         for center, _direction in shape:
@@ -115,10 +57,11 @@ def isRepeating(shapes):
                 fundamental.append(shape)
                 break
 
-    for offsets in more_itertools.powerset(repeats):
+    # Remove duplicates offset by the lattice.
+    for offsets in more_itertools.powerset(basis):
         if not offsets:
             continue
-        for coeffs in itertools.product(range(-10, 11), repeat=len(offsets)):
+        for coeffs in itertools.product(range(-5, 6), repeat=len(offsets)):
             if not any(coeffs):
                 continue
             result = fundamental
@@ -129,17 +72,23 @@ def isRepeating(shapes):
                 if shape not in overlap(fundamental, result)
             ]
 
-    print(repeats)
-    print(len(fundamental), abs(round(np.linalg.det(repeats))))
+    return fundamental
 
-    return periodic.isRepeatingOffsets(fundamental, repeats), len(fundamental)
+
+def isRepeating(shapes):
+    for basis in getBases(shapes):
+        fundamental = getFundamental(shapes, basis)
+        if isRepeatingOffsets(fundamental, basis):
+            return True, len(fundamental)
+
+    return False, 0
 
 
 if __name__ == '__main__':
     import os
 
 
-    PATH = 'gallery/3k'
+    PATH = 'gallery/10k'
 
     with open(f'{PATH}/unknown.txt') as f:
         unknown = [eval(l) for l in f.readlines()]
