@@ -88,7 +88,7 @@ if __name__ == '__main__':
     import os
 
 
-    PATH = 'gallery/10k'
+    PATH = 'gallery/600'
 
     with open(f'{PATH}/unknown.txt') as f:
         unknown = [eval(l) for l in f.readlines()]
