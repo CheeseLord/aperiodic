@@ -21,7 +21,7 @@ def getBases(shapes):
         if sum(offset) % 2 == 0 and offset > (0, 0, 0)
     ]
     best = nlargest(
-        10, possible,
+        8, possible,
         key=lambda offset: len(overlap(shapes, translate(shapes, offset)))
     )
 
@@ -88,7 +88,7 @@ if __name__ == '__main__':
     import os
 
 
-    PATH = 'gallery/600'
+    PATH = 'shapes/temp'
 
     with open(f'{PATH}/unknown.txt') as f:
         unknown = [eval(l) for l in f.readlines()]
