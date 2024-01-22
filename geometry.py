@@ -150,3 +150,9 @@ def translate(shapes, offset):
     ]
     return other
 
+
+def overlap(shapes, other):
+    shapes = {tuple(shape) for shape in shapes}
+    other = {tuple(shape) for shape in other}
+    return [list(x) for x in shapes & other]
+

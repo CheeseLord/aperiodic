@@ -4,14 +4,8 @@ import more_itertools
 import numpy as np
 import sympy
 
-from geometry import translate
+from geometry import translate, overlap
 from periodic import isRepeatingOffsets
-
-
-def overlap(shapes, other):
-    shapes = {tuple(shape) for shape in shapes}
-    other = {tuple(shape) for shape in other}
-    return [list(x) for x in shapes & other]
 
 
 def getBases(shapes):
@@ -21,7 +15,7 @@ def getBases(shapes):
         if sum(offset) % 2 == 0 and offset > (0, 0, 0)
     ]
     best = nlargest(
-        8, possible,
+        10, possible,
         key=lambda offset: len(overlap(shapes, translate(shapes, offset)))
     )
 
@@ -36,8 +30,6 @@ def getBases(shapes):
 
 def getFundamental(shapes, basis):
     # Find the lattice points in the fundamental domain.
-    for subset in more_itertools.powerset(basis):
-        corner = np.sum(subset, axis=0)
     mat = np.array(basis).T
     possible = [
         offset for offset in itertools.product(range(-10, 11), repeat=3)
