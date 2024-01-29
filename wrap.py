@@ -82,7 +82,7 @@ if __name__ == '__main__':
             v[0] += sum(v) % 2
             basis.append(tuple(v))
         period = int(abs(round(np.linalg.det(basis))))
-        if 0 < period < 20:
+        if 0 < period < 100:
             break
     print(f'Basis: {basis} (period {period})')
 
