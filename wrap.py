@@ -9,9 +9,10 @@ from geometry import DIRECTIONS, orient
 
 def getFundamentalWidgets(basis):
     mat = np.array(basis).T
+    bounds = np.sum(np.abs(mat), axis=1)
+    possible = list(itertools.product(*[range(-x, x) for x in bounds]))
     possible = [
-        offset for offset in itertools.product(range(-10, 11), repeat=3)
-        if sum(offset) % 2 == 0
+        offset for offset in possible if sum(offset) % 2 == 0
     ]
     possible = sorted(possible, key=np.linalg.norm)
     centers = []
@@ -82,8 +83,16 @@ if __name__ == '__main__':
             v[0] += sum(v) % 2
             basis.append(tuple(v))
         period = int(abs(round(np.linalg.det(basis))))
-        if 0 < period < 100:
+        if period > 100:
+            continue
+        n = period
+        while n % 2 == 0:
+            n //= 2
+        while n % 3 == 0:
+            n //= 3
+        if n == 1:
             break
+
     print(f'Basis: {basis} (period {period})')
 
     fundamental = getFundamentalWidgets(basis)
