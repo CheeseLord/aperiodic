@@ -22,8 +22,7 @@ def cover(shape, numWidgets):
 
     # Find an exact cover for the widgets.
     arr = np.zeros((len(indices), numWidgets), dtype=bool)
-    for i, s in enumerate(indices):
-        arr[i, s] = True
+    for i, s in enumerate(indices): arr[i, s] = True
     try:
         cover_ = exact_cover.get_exact_cover(arr)
         return [subsets[indices[i]] for i in cover_]
@@ -31,41 +30,47 @@ def cover(shape, numWidgets):
         return None
 
 
-def bestCover(shape):
-    maxTime = 60
-    minWidgets = 210
-    maxWidgets = 230
-    widgetStep = 10
-
-    shapes = []
-    numWidgets = minWidgets
-    while True:
-        start = time.time()
-        shapes = cover(shape, numWidgets)
-        end = time.time()
-        if shapes is None:
-            return None, numWidgets
-        if end - start > maxTime:
-            return shapes, numWidgets
-        if numWidgets >= maxWidgets:
-            return shapes, numWidgets
-        numWidgets += widgetStep
-
-
 if __name__ == '__main__':
-    NUM_WIDGETS = 500
-    TIMEOUT = 10
+    from collections import defaultdict
 
-    wrapped = timeout_decorator.timeout(TIMEOUT, use_signals=False)(cover)
+    NUM_WIDGETS = 1500
+    TIMEOUT = 1200
+    BATCH = 20
+
     with open('shapes/unknown.txt') as f:
         shapes = [eval(l) for l in f.readlines()]
+
+    frequent = defaultdict(int)
+    with open('shapes/frequent.txt') as f:
+        lines = [eval(l) for l in f.readlines()]
+    for n, t, shape in lines:
+        frequent[tuple(shape)] = max(n, frequent[tuple(shape)])
+
+    wrapped = timeout_decorator.timeout(TIMEOUT, use_signals=False)(cover)
 
     invalid = 0
     finished = 0
     timeouts = 0
+    skipped = 0
     for i, shape in enumerate(shapes, start=1):
-        if i % 100 == 1:
-            print(f'~~ Starting {i: 5d} - {min(i + 99, len(shapes))} ~~')
+        if i % BATCH == 1:
+            print(f'~~ Starting {i: 5d} - {min(i + BATCH - 1, len(shapes))} ~~')
+
+        if frequent[tuple(shape)] >= NUM_WIDGETS:
+            reason = 'high'
+        elif frequent[tuple(shape)] <= NUM_WIDGETS * 0.7:
+            reason = 'low'
+        else:
+            reason = ''
+
+        if reason:
+            with open(f'shapes/working/unknown.txt', 'a') as f:
+                f.write(f'{shape}\n')
+            skipped += 1
+            print(f'{i: 5d} skipped ({reason})')
+            if i % BATCH == 0 or i == len(shapes):
+                print(f'~~ Finished {(i - 1) // BATCH * BATCH + 1: 5d} - {i} ~~')
+            continue
 
         try:
             cover_ = wrapped(shape, NUM_WIDGETS)
@@ -73,6 +78,7 @@ if __name__ == '__main__':
             with open(f'shapes/working/unknown.txt', 'a') as f:
                 f.write(f'{shape}\n')
             timeouts += 1
+            print(f'{i: 5d} timed out')
         else:
             if cover_ is None:
                 with open(
@@ -88,16 +94,21 @@ if __name__ == '__main__':
                     f.write(f'{NUM_WIDGETS}, {TIMEOUT}, {shape}\n')
                 finished += 1
                 print(f'{i: 5d} finished')
-                for s in cover_:
+
+                """
+                # NOTE: This includes the original shape for easy comparison.
+                for s in [shape] + cover_:
                     with open(f'shapes/working/tiling{i:03d}.txt', 'a') as f:
                         f.write(f'{s}\n')
+                """
 
-        if i % 100 == 0 or i == len(shapes):
-            print(f'~~ Finished {(i - 1) // 100 * 100 + 1: 5d} - {i} ~~')
+        if i % BATCH == 0 or i == len(shapes):
+            print(f'~~ Finished {(i - 1) // BATCH * BATCH + 1: 5d} - {i} ~~')
 
     print(f'Invalid: {invalid}')
     print(f'Finished: {finished}')
     print(f'Timeouts: {timeouts}')
+    print(f'Skipped: {skipped}')
 
     if invalid:
         exit(1)
