@@ -2,10 +2,10 @@ import exact_cover
 import itertools
 import more_itertools
 import numpy as np
-import olll
 import random
 
 from geometry import DIRECTIONS, orient
+from linearAlgebra import makeCanonical
 
 
 def getFundamentalWidgets(basis):
@@ -77,31 +77,27 @@ if __name__ == '__main__':
     with open('shapes/unknown.txt') as f:
         shapes = [eval(l) for l in f.readlines()]
 
-    target = 72
+    with open('shapes/bases.txt') as f:
+        bases = [eval(l) for l in f.readlines()]
+
     while True:
-        mat = np.random.randint(-target // 2, target // 2 + 1, (3, 3))
+        target = random.choice([48])
+        mat = np.random.randint(-target, target + 1, (3, 3))
         basis = []
         for v in mat:
             v[0] += sum(v) % 2
             basis.append(tuple(v))
+
         period = int(abs(round(np.linalg.det(basis))))
-
-        if period == target:
-            break
-
-        """
-        if period == 0 or period > 30:
+        if period != target:
             continue
-        n = period
-        while n % 2 == 0:
-            n //= 2
-        while n % 3 == 0:
-            n //= 3
-        if n == 1:
-            break
-        """
 
-    reduced = olll.reduction([list(v) for v in basis], 0.75)
+        reduced = makeCanonical(basis)
+        if reduced in bases:
+            continue
+
+        break
+
     print(f'Basis: {basis} (period {period})')
     print(f'Reduced: {reduced}')
 
@@ -115,4 +111,7 @@ if __name__ == '__main__':
                 f.write(f'{shape}\n')
         if i % 10 == 0 or i == len(shapes):
             print(f'Finished {i}')
+
+    with open('shapes/bases.txt', 'a') as f:
+        f.write(f'{reduced}\n')
 

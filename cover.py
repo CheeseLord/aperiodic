@@ -33,8 +33,8 @@ def cover(shape, numWidgets):
 if __name__ == '__main__':
     from collections import defaultdict
 
-    NUM_WIDGETS = 1500
-    TIMEOUT = 1200
+    NUM_WIDGETS = 220
+    TIMEOUT = 60 * 60 * 24
     BATCH = 20
 
     with open('shapes/unknown.txt') as f:
