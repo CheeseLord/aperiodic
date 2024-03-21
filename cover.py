@@ -1,9 +1,6 @@
 import exact_cover
-import multiprocessing as mp
 import numpy as np
 import random
-import time
-import timeout_decorator
 
 from geometry import WIDGETS, orient
 
@@ -32,6 +29,8 @@ def cover(shape, numWidgets):
 
 if __name__ == '__main__':
     from collections import defaultdict
+    import multiprocessing as mp
+    import timeout_decorator
 
     NUM_WIDGETS = 220
     TIMEOUT = 60 * 60 * 24
