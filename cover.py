@@ -6,6 +6,8 @@ from geometry import WIDGETS, orient
 
 
 def cover(shape, numWidgets):
+    raise NotImplementedError('This is broken.')
+
     widgets = {w: i for i, w in enumerate(WIDGETS[:numWidgets])}
 
     # Find the subsets that can be covered by a single tile.

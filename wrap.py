@@ -74,12 +74,45 @@ def isRepeating(shape, basis, fundamental):
 
 
 if __name__ == '__main__':
+    with open('shapes/allShapes.txt') as f:
+        allShapes = [eval(l) for l in f.readlines()]
     with open('shapes/unknown.txt') as f:
         shapes = [eval(l) for l in f.readlines()]
-
     with open('shapes/bases.txt') as f:
         bases = [eval(l) for l in f.readlines()]
 
+    for i, shape in enumerate(shapes, start=1):
+        for basis in bases[105: 399]:
+            fundamental = getFundamentalWidgets(basis)
+            tiling = isRepeating(shape, basis, fundamental)
+            if tiling is not None:
+                period = len(tiling)
+
+                assert period == int(abs(round(np.linalg.det(basis))))
+
+                merged = []
+                for tile in tiling:
+                    merged += []
+
+                assert len(merged) == len(set(merged))
+
+                print(f'Shape {i:04d}: basis {basis} (period {period}).')
+                with open(f'shapes/working/periodic-{period}.txt', 'a') as f:
+                    f.write(f'{shape}\n')
+
+                index = allShapes.index(shape) + 1
+                with open(f'shapes/certificates/{index:05d}.txt', 'w+') as f:
+                    f.write(f'{shape}\n')
+                    f.write(f'{basis}\n')
+                    f.write('\n')
+                    for tile in tiling:
+                        f.write(f'{tile}\n')
+
+                break
+        else:
+            print(f'Shape {i:04d}: Not found.')
+
+    """
     while True:
         target = random.choice([48])
         mat = np.random.randint(-target, target + 1, (3, 3))
@@ -114,4 +147,5 @@ if __name__ == '__main__':
 
     with open('shapes/bases.txt', 'a') as f:
         f.write(f'{reduced}\n')
+    """
 
