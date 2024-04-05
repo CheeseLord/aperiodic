@@ -48,7 +48,7 @@ def wrap(shape, basis, fundamental):
     return wrapped
 
 
-def isRepeating(shape, basis, fundamental):
+def isRepeatingBasis(shape, basis, fundamental):
     widgets = {w: i for i, w in enumerate(fundamental)}
 
     # Find the subsets that can be covered with a single tile.
@@ -73,7 +73,33 @@ def isRepeating(shape, basis, fundamental):
         return None
 
 
+def isRepeating(shape, bases):
+    for basis in bases:
+        fundamental = getFundamentalWidgets(basis)
+        tiling = isRepeatingBasis(shape, basis, fundamental)
+
+        if tiling is None:
+            continue
+
+        period = len(tiling)
+        assert period == int(abs(round(np.linalg.det(basis))))
+
+        merged = []
+        for tile in tiling:
+            merged += []
+        assert len(merged) == len(set(merged))
+
+        return tiling, basis
+
+    return None
+
+
 if __name__ == '__main__':
+    import multiprocessing as mp
+
+    PROCESSES = 4
+    BATCH_SIZE = 20
+
     with open('shapes/allShapes.txt') as f:
         allShapes = [eval(l) for l in f.readlines()]
     with open('shapes/unknown.txt') as f:
@@ -81,36 +107,37 @@ if __name__ == '__main__':
     with open('shapes/bases.txt') as f:
         bases = [eval(l) for l in f.readlines()]
 
-    for i, shape in enumerate(shapes, start=1):
-        for basis in bases[105: 399]:
-            fundamental = getFundamentalWidgets(basis)
-            tiling = isRepeating(shape, basis, fundamental)
-            if tiling is not None:
-                period = len(tiling)
+    bases = bases[399: 519]
 
-                assert period == int(abs(round(np.linalg.det(basis))))
+    pool = mp.Pool(processes=PROCESSES)
+    batches = [
+        shapes[i: i + BATCH_SIZE]
+        for i in range(0, len(shapes), BATCH_SIZE)
+    ]
 
-                merged = []
+    i = 0
+    for b in batches:
+        results = pool.starmap(isRepeating, [(s, bases) for s in b])
+        print(f'~~ {i + 1: 4d} - {min(i + BATCH_SIZE, len(shapes)): 4d} ~~')
+
+        for shape, result in zip(b, results):
+            i += 1
+            if result is None:
+                continue
+
+            tiling, basis = result
+            period = len(tiling)
+            print(f'{i: 4d}: Periodic {period} ({basis})')
+            with open(f'shapes/working/periodic-{period}.txt', 'a') as f:
+                f.write(f'{shape}\n')
+
+            index = allShapes.index(shape) + 1
+            with open(f'shapes/certificates/{index:05d}.txt', 'w+') as f:
+                f.write(f'{shape}\n')
+                f.write(f'{basis}\n')
+                f.write('\n')
                 for tile in tiling:
-                    merged += []
-
-                assert len(merged) == len(set(merged))
-
-                print(f'Shape {i:04d}: basis {basis} (period {period}).')
-                with open(f'shapes/working/periodic-{period}.txt', 'a') as f:
-                    f.write(f'{shape}\n')
-
-                index = allShapes.index(shape) + 1
-                with open(f'shapes/certificates/{index:05d}.txt', 'w+') as f:
-                    f.write(f'{shape}\n')
-                    f.write(f'{basis}\n')
-                    f.write('\n')
-                    for tile in tiling:
-                        f.write(f'{tile}\n')
-
-                break
-        else:
-            print(f'Shape {i:04d}: Not found.')
+                    f.write(f'{tile}\n')
 
     """
     while True:
@@ -137,7 +164,7 @@ if __name__ == '__main__':
     fundamental = getFundamentalWidgets(basis)
 
     for i, shape in enumerate(shapes, start=1):
-        thing = isRepeating(shape, basis, fundamental)
+        thing = isRepeatingBasis(shape, basis, fundamental)
         if thing is not None:
             print(f'* {i} *')
             with open(f'shapes/working/periodic-{period}.txt', 'a') as f:
