@@ -7,6 +7,7 @@ from geometry import WIDGETS, orient
 
 
 def cover(shape, numWidgets):
+    volume = len(shape) // 7
     widgets = WIDGETS[:numWidgets]
 
     # Find all possible tiles containing these widgets.
@@ -14,7 +15,7 @@ def cover(shape, numWidgets):
     s = set()
     covering = defaultdict(list)
     for widget in widgets:
-        for orientation in range(12):
+        for orientation in range(12 * volume):
             newShape = sorted(orient(shape, widget, orientation))
             if tuple(newShape) in s:
                 continue
@@ -50,7 +51,7 @@ if __name__ == '__main__':
     with open('shapes/unknown.txt') as f:
         shapes = [eval(l) for l in f.readlines()]
 
-    NUM_WIDGETS = 10000
+    NUM_WIDGETS = 20
 
     for i, shape in enumerate(shapes):
         result = cover(shape, NUM_WIDGETS)
@@ -59,10 +60,10 @@ if __name__ == '__main__':
                 f'shapes/working/invalid-satisfy-{NUM_WIDGETS}.txt', 'a'
             ) as f:
                 f.write(f'{shape}\n')
-            print(f'{i: 4d} invalid')
+            print(f'{i: 5d} invalid')
             continue
 
-        print(f'{i: 4d} finished')
+        print(f'{i: 5d} finished')
 
         combined = []
         for x in result:

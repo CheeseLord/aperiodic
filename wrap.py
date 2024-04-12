@@ -49,15 +49,18 @@ def wrap(shape, basis, fundamental):
 
 
 def isRepeatingBasis(shape, basis, fundamental):
+    volume = len(shape) // 7
     widgets = {w: i for i, w in enumerate(fundamental)}
 
     # Find the subsets that can be covered with a single tile.
     subsets = {}
     for widget in fundamental:
-        for orientation in range(12):
+        for orientation in range(12 * volume):
             newShape = wrap(
                 orient(shape, widget, orientation), basis, fundamental
             )
+            if len(newShape) != len(set(newShape)):
+                continue
             s = [widgets[w] for w in newShape if w in widgets]
             subsets[tuple(sorted(s))] = newShape
     indices = random.sample(list(subsets), len(subsets))
@@ -82,7 +85,8 @@ def isRepeating(shape, bases):
             continue
 
         period = len(tiling)
-        assert period == int(abs(round(np.linalg.det(basis))))
+        volume = len(shape) // 7
+        assert period * volume == int(abs(round(np.linalg.det(basis))))
 
         merged = []
         for tile in tiling:
@@ -107,7 +111,7 @@ if __name__ == '__main__':
     with open('shapes/bases.txt') as f:
         bases = [eval(l) for l in f.readlines()]
 
-    bases = bases[399: 519]
+    bases = bases[:11]
 
     pool = mp.Pool(processes=PROCESSES)
     batches = [
@@ -118,7 +122,7 @@ if __name__ == '__main__':
     i = 0
     for b in batches:
         results = pool.starmap(isRepeating, [(s, bases) for s in b])
-        print(f'~~ {i + 1: 4d} - {min(i + BATCH_SIZE, len(shapes)): 4d} ~~')
+        print(f'~~ {i + 1: 5d} - {min(i + BATCH_SIZE, len(shapes)): 5d} ~~')
 
         for shape, result in zip(b, results):
             i += 1
@@ -127,7 +131,7 @@ if __name__ == '__main__':
 
             tiling, basis = result
             period = len(tiling)
-            print(f'{i: 4d}: Periodic {period} ({basis})')
+            print(f'{i: 5d}: Periodic {period} ({basis})')
             with open(f'shapes/working/periodic-{period}.txt', 'a') as f:
                 f.write(f'{shape}\n')
 

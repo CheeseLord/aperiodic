@@ -1,7 +1,29 @@
 import itertools
 import numpy as np
+import random
 
 from geometry import getNeighbors
+
+
+def generateRandomShape(n):
+    shape = [
+        ((0, 0, 0), (1, 0, 0)),
+        ((0, 0, 0), (1, 1, 1)),
+    ]
+
+    while len(shape) < 7 * n:
+        neighbors = set()
+        for x in shape:
+            neighbors = neighbors.union(getNeighbors(x))
+        neighbors = neighbors.difference(shape)
+        newShape = shape + [random.choice(list(neighbors))]
+
+        octs = sum(0 in w[1] for w in newShape)
+        tets = len(newShape) - octs
+        if octs <= 3 * n and tets <= 4 * n:
+            shape = newShape
+
+    return makeCanonical(shape)
 
 
 def generateAllShapes(n):
@@ -35,6 +57,43 @@ def _generateHelper(shape, o, t):
     return shapes
 
 
+"""
+def generateShapes(n):
+    o = 3 * n
+    t = 4 * n
+
+    shapes = [[
+        ((0, 0, 0), (1, 0, 0)),
+        ((0, 0, 0), (1, 1, 1)),
+    ]]
+    for _ in range(7 * n - 2):
+        newShapes = []
+
+        for shape in shapes:
+            neighbors = set()
+            for w in shape:
+                neighbors = neighbors.union(getNeighbors(w))
+            neighbors = neighbors.difference(shape)
+            for w in neighbors:
+                newShapes += [shape + [w]]
+
+        newShapes = [
+            x for x in newShapes
+            if sum(0 in w[1] for w in x) <= o
+            and sum(0 not in w[1] for w in x) <= t
+        ]
+        newShapes = [
+            list(y) for y in {tuple(sorted(x)) for x in newShapes}
+        ]
+        newShapes = [
+            list(y) for y in {tuple(makeCanonical(x)) for x in newShapes}
+        ]
+        shapes = newShapes
+
+    return shapes
+"""
+
+
 def makeCanonical(shape):
     best = None
     arr = np.array(shape)
@@ -53,8 +112,28 @@ def makeCanonical(shape):
 
 
 if __name__ == '__main__':
-    shapes = generateAllShapes(2)
+    """
+    shapes = generateShapes(2)
     with open('shapes/allShapes.txt', 'w') as f:
         f.writelines([f'{shape}\n' for shape in shapes])
     print(len(shapes))
+    """
+
+    with open('shapes/allShapes.txt') as f:
+        shapes = {tuple(eval(l)) for l in f.readlines()}
+
+    newShapes = []
+    repeats = 0
+    while len(newShapes) < 10 ** 3:
+        shape = generateRandomShape(2)
+        if tuple(shape) in shapes or shape in newShapes:
+            print('Repeated shape')
+            repeats += 1
+            continue
+        newShapes.append(shape)
+    print(f'{repeats} repeats')
+
+    with open('shapes/allShapes.txt', 'a') as f:
+        for shape in newShapes:
+            f.write(f'{shape}\n')
 
