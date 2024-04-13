@@ -111,7 +111,7 @@ if __name__ == '__main__':
     with open('shapes/bases.txt') as f:
         bases = [eval(l) for l in f.readlines()]
 
-    bases = bases[:11]
+    bases = bases[207:]
 
     pool = mp.Pool(processes=PROCESSES)
     batches = [
@@ -142,41 +142,4 @@ if __name__ == '__main__':
                 f.write('\n')
                 for tile in tiling:
                     f.write(f'{tile}\n')
-
-    """
-    while True:
-        target = random.choice([48])
-        mat = np.random.randint(-target, target + 1, (3, 3))
-        basis = []
-        for v in mat:
-            v[0] += sum(v) % 2
-            basis.append(tuple(v))
-
-        period = int(abs(round(np.linalg.det(basis))))
-        if period != target:
-            continue
-
-        reduced = makeCanonical(basis)
-        if reduced in bases:
-            continue
-
-        break
-
-    print(f'Basis: {basis} (period {period})')
-    print(f'Reduced: {reduced}')
-
-    fundamental = getFundamentalWidgets(basis)
-
-    for i, shape in enumerate(shapes, start=1):
-        thing = isRepeatingBasis(shape, basis, fundamental)
-        if thing is not None:
-            print(f'* {i} *')
-            with open(f'shapes/working/periodic-{period}.txt', 'a') as f:
-                f.write(f'{shape}\n')
-        if i % 10 == 0 or i == len(shapes):
-            print(f'Finished {i}')
-
-    with open('shapes/bases.txt', 'a') as f:
-        f.write(f'{reduced}\n')
-    """
 

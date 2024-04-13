@@ -28,7 +28,7 @@ def cleanup():
 def correct():
     seen = set()
 
-    for base in ['invalid-dfs', 'invalid-cover', 'periodic']:
+    for base in ['invalid-dfs', 'invalid-cover', 'invalid-satisfy', 'periodic']:
         names = [x for x in os.listdir('shapes') if x.startswith(base)]
         names = sorted(names,
             key=lambda x: int(re.match('[^\d]*(\d+)[^\d]*', x).groups()[0])
@@ -55,5 +55,6 @@ def correct():
 
 
 if __name__ == '__main__':
-    cleanup()
+    #cleanup()
+    correct()
 

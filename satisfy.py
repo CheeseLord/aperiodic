@@ -52,7 +52,7 @@ if __name__ == '__main__':
     with open('shapes/unknown.txt') as f:
         shapes = [eval(l) for l in f.readlines()]
 
-    NUM_WIDGETS = 500
+    NUM_WIDGETS = 1000
 
     for i, shape in enumerate(shapes, start=1):
         result = cover(shape, NUM_WIDGETS)
