@@ -37,13 +37,14 @@ def cover(shape, numWidgets):
             constraints.append([-i, -j])
 
     # Solve the constraints.
-    solver = Glucose3()
-    for c in constraints:
-        solver.add_clause(c)
-    if not solver.solve():
-        return None
+    with Glucose3() as solver:
+        for c in constraints:
+            solver.add_clause(c)
+        if not solver.solve():
+            return None
 
-    result = solver.get_model()
+        result = solver.get_model()
+
     return [shapes[x - 1] for x in result if x > 0]
 
 
@@ -51,9 +52,9 @@ if __name__ == '__main__':
     with open('shapes/unknown.txt') as f:
         shapes = [eval(l) for l in f.readlines()]
 
-    NUM_WIDGETS = 20
+    NUM_WIDGETS = 500
 
-    for i, shape in enumerate(shapes):
+    for i, shape in enumerate(shapes, start=1):
         result = cover(shape, NUM_WIDGETS)
         if result is None:
             with open(
