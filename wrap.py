@@ -1,7 +1,8 @@
-import exact_cover
+from collections import defaultdict
 import itertools
 import more_itertools
 import numpy as np
+from pysat.solvers import Glucose3
 import random
 
 from geometry import DIRECTIONS, orient
@@ -50,10 +51,11 @@ def wrap(shape, basis, fundamental):
 
 def isRepeatingBasis(shape, basis, fundamental):
     volume = len(shape) // 7
-    widgets = {w: i for i, w in enumerate(fundamental)}
 
-    # Find the subsets that can be covered with a single tile.
-    subsets = {}
+    # Find all possible tiles containing these widgets.
+    shapes = []
+    s = set()
+    covering = defaultdict(list)
     for widget in fundamental:
         for orientation in range(12 * volume):
             newShape = wrap(
@@ -61,19 +63,36 @@ def isRepeatingBasis(shape, basis, fundamental):
             )
             if len(newShape) != len(set(newShape)):
                 continue
-            s = [widgets[w] for w in newShape if w in widgets]
-            subsets[tuple(sorted(s))] = newShape
-    indices = random.sample(list(subsets), len(subsets))
+            if tuple(newShape) in s:
+                continue
 
-    # Find an exact cover for the widgets.
-    arr = np.zeros((len(indices), len(fundamental)), dtype=bool)
-    for i, s in enumerate(indices):
-        arr[i, s] = True
-    try:
-        cover_ = exact_cover.get_exact_cover(arr)
-        return [subsets[indices[i]] for i in cover_]
-    except exact_cover.error.NoSolution:
-        return None
+            shapes.append(newShape)
+            s.add(tuple(newShape))
+            for w in newShape:
+                covering[w].append(len(shapes))
+
+    # Find the satisfiability constraints.
+    constraints = []
+    # Make sure all the necessary widgets are covered.
+    for widget in fundamental:
+        constraints.append(covering[widget])
+    # Make sure no widget is covered more than once.
+    for widget in covering:
+        # TODO: Make this more efficient.
+        for i, j in itertools.combinations(covering[widget], 2):
+            constraints.append([-i, -j])
+
+    # Solve the constraints.
+    with Glucose3() as solver:
+        for c in constraints:
+            solver.add_clause(c)
+        if not solver.solve():
+            return None
+
+        result = solver.get_model()
+
+    return [shapes[x - 1] for x in result if x > 0]
+
 
 
 def isRepeating(shape, bases):
@@ -111,8 +130,8 @@ if __name__ == '__main__':
     with open('shapes/bases.txt') as f:
         bases = [eval(l) for l in f.readlines()]
 
-    # bases = bases[:207]
-    bases = bases[207:]
+    bases = bases[:207]
+    # bases = bases[207:]
 
     pool = mp.Pool(processes=PROCESSES)
     batches = [
