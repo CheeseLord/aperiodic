@@ -112,19 +112,19 @@ def makeCanonical(shape):
 
 
 if __name__ == '__main__':
-    """
-    shapes = generateShapes(2)
-    with open('shapes/allShapes.txt', 'w') as f:
-        f.writelines([f'{shape}\n' for shape in shapes])
-    print(len(shapes))
-    """
+    import argparse
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument('numShapes')
+    args = parser.parse_args()
+
 
     with open('shapes/allShapes.txt') as f:
         shapes = {tuple(eval(l)) for l in f.readlines()}
 
     newShapes = []
     repeats = 0
-    while len(newShapes) < 10 ** 3:
+    while len(newShapes) < int(args.numShapes):
         shape = generateRandomShape(2)
         if tuple(shape) in shapes or shape in newShapes:
             print('Repeated shape')

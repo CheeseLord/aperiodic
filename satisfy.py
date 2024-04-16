@@ -49,16 +49,22 @@ def cover(shape, numWidgets):
 
 
 if __name__ == '__main__':
+    import argparse
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument('numWidgets')
+    args = parser.parse_args()
+    numWidgets = int(args.numWidgets)
+
+
     with open('shapes/unknown.txt') as f:
         shapes = [eval(l) for l in f.readlines()]
 
-    NUM_WIDGETS = 1000
-
     for i, shape in enumerate(shapes, start=1):
-        result = cover(shape, NUM_WIDGETS)
+        result = cover(shape, numWidgets)
         if result is None:
             with open(
-                f'shapes/working/invalid-satisfy-{NUM_WIDGETS}.txt', 'a'
+                f'shapes/working/invalid-satisfy-{numWidgets}.txt', 'a'
             ) as f:
                 f.write(f'{shape}\n')
             print(f'{i: 5d} invalid')
@@ -69,7 +75,7 @@ if __name__ == '__main__':
         combined = []
         for x in result:
             combined += x
-        for widget in WIDGETS[:NUM_WIDGETS]:
+        for widget in WIDGETS[:numWidgets]:
             assert widget in combined
         assert len(combined) == len(set(combined))
 
