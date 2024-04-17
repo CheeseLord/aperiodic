@@ -121,7 +121,7 @@ if __name__ == '__main__':
     import multiprocessing as mp
 
     PROCESSES = 4
-    BATCH_SIZE = 20
+    BATCH_SIZE = 50
 
     with open('shapes/allShapes.txt') as f:
         allShapes = [eval(l) for l in f.readlines()]
@@ -130,7 +130,7 @@ if __name__ == '__main__':
     with open('shapes/bases.txt') as f:
         bases = [eval(l) for l in f.readlines()]
 
-    bases = bases[:207]
+    # bases = bases[:207]
     # bases = bases[207:]
 
     pool = mp.Pool(processes=PROCESSES)
