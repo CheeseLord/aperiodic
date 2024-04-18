@@ -15,15 +15,20 @@ def cover(shape, numWidgets):
     s = set()
     covering = defaultdict(list)
     for widget in widgets:
-        for orientation in range(12 * volume):
-            newShape = sorted(orient(shape, widget, orientation))
-            if tuple(newShape) in s:
-                continue
+        for reflection in [1, -1]:
+            flipped = [
+                (tuple(x[0]), tuple(x[1]))
+                for x in np.array(shape) * reflection
+            ]
+            for orientation in range(12 * volume):
+                newShape = sorted(orient(flipped, widget, orientation))
+                if tuple(newShape) in s:
+                    continue
 
-            shapes.append(newShape)
-            s.add(tuple(newShape))
-            for w in newShape:
-                covering[w].append(len(shapes))
+                shapes.append(newShape)
+                s.add(tuple(newShape))
+                for w in newShape:
+                    covering[w].append(len(shapes))
 
     # Find the satisfiability constraints.
     constraints = []
@@ -50,18 +55,27 @@ def cover(shape, numWidgets):
 
 if __name__ == '__main__':
     import argparse
+    import timeout_decorator
+
+    TIMEOUT = 300
 
     parser = argparse.ArgumentParser()
     parser.add_argument('numWidgets')
     args = parser.parse_args()
     numWidgets = int(args.numWidgets)
 
+    wrapped = timeout_decorator.timeout(TIMEOUT, use_signals=False)(cover)
 
     with open('shapes/unknown.txt') as f:
         shapes = [eval(l) for l in f.readlines()]
 
     for i, shape in enumerate(shapes, start=1):
-        result = cover(shape, numWidgets)
+        try:
+            result = wrapped(shape, numWidgets)
+        except timeout_decorator.timeout_decorator.TimeoutError:
+            print(f'{i: 5d} unknown')
+            continue
+
         if result is None:
             with open(
                 f'shapes/working/invalid-satisfy-{numWidgets}.txt', 'a'

@@ -57,19 +57,24 @@ def isRepeatingBasis(shape, basis, fundamental):
     s = set()
     covering = defaultdict(list)
     for widget in fundamental:
-        for orientation in range(12 * volume):
-            newShape = wrap(
-                orient(shape, widget, orientation), basis, fundamental
-            )
-            if len(newShape) != len(set(newShape)):
-                continue
-            if tuple(newShape) in s:
-                continue
+        for reflection in [1, -1]:
+            flipped = [
+                (tuple(x[0]), tuple(x[1]))
+                for x in np.array(shape) * reflection
+            ]
+            for orientation in range(12 * volume):
+                newShape = wrap(
+                    orient(flipped, widget, orientation), basis, fundamental
+                )
+                if len(newShape) != len(set(newShape)):
+                    continue
+                if tuple(newShape) in s:
+                    continue
 
-            shapes.append(newShape)
-            s.add(tuple(newShape))
-            for w in newShape:
-                covering[w].append(len(shapes))
+                shapes.append(newShape)
+                s.add(tuple(newShape))
+                for w in newShape:
+                    covering[w].append(len(shapes))
 
     # Find the satisfiability constraints.
     constraints = []
@@ -121,7 +126,7 @@ if __name__ == '__main__':
     import multiprocessing as mp
 
     PROCESSES = 4
-    BATCH_SIZE = 50
+    BATCH_SIZE = 20
 
     with open('shapes/allShapes.txt') as f:
         allShapes = [eval(l) for l in f.readlines()]
@@ -130,7 +135,7 @@ if __name__ == '__main__':
     with open('shapes/bases.txt') as f:
         bases = [eval(l) for l in f.readlines()]
 
-    # bases = bases[:207]
+    bases = bases[:207]
     # bases = bases[207:]
 
     pool = mp.Pool(processes=PROCESSES)
