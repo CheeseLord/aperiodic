@@ -1,7 +1,9 @@
 from collections import defaultdict
 import itertools
 import numpy as np
+from pysat.pb import PBEnc
 from pysat.solvers import Glucose3
+import random
 
 from geometry import WIDGETS, orient
 
@@ -36,10 +38,16 @@ def cover(shape, numWidgets):
     for widget in widgets:
         constraints.append(covering[widget])
     # Make sure no widget is covered more than once.
+    maxId = len(shapes)
     for widget in covering:
-        # TODO: Make this more efficient.
-        for i, j in itertools.combinations(covering[widget], 2):
-            constraints.append([-i, -j])
+        pb = PBEnc.atmost(covering[widget], bound=1, top_id=maxId)
+        for clause in pb.clauses:
+            constraints.append(clause)
+            maxId = max(maxId, max(clause))
+    # Place the first tile to break symmetry.
+    constraints.append([1])
+
+    random.shuffle(constraints)
 
     # Solve the constraints.
     with Glucose3() as solver:
@@ -50,14 +58,15 @@ def cover(shape, numWidgets):
 
         result = solver.get_model()
 
-    return [shapes[x - 1] for x in result if x > 0]
+    return [shapes[x - 1] for x in result if 0 < x <= len(shapes)]
 
 
 if __name__ == '__main__':
     import argparse
     import timeout_decorator
+    import time
 
-    TIMEOUT = 300
+    TIMEOUT = 3600
 
     parser = argparse.ArgumentParser()
     parser.add_argument('numWidgets')
@@ -71,9 +80,11 @@ if __name__ == '__main__':
 
     for i, shape in enumerate(shapes, start=1):
         try:
+            start = time.time()
             result = wrapped(shape, numWidgets)
+            end = time.time()
         except timeout_decorator.timeout_decorator.TimeoutError:
-            print(f'{i: 5d} unknown')
+            print(f'{i: 5d} timeout')
             continue
 
         if result is None:
@@ -84,7 +95,7 @@ if __name__ == '__main__':
             print(f'{i: 5d} invalid')
             continue
 
-        print(f'{i: 5d} finished')
+        print(f'{i: 5d} finished ({end - start:g} seconds)')
 
         combined = []
         for x in result:
