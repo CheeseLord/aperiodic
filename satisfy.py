@@ -73,7 +73,8 @@ if __name__ == '__main__':
     args = parser.parse_args()
     numWidgets = int(args.numWidgets)
 
-    wrapped = timeout_decorator.timeout(TIMEOUT, use_signals=False)(cover)
+    #wrapped = timeout_decorator.timeout(TIMEOUT, use_signals=False)(cover)
+    wrapped = cover
 
     with open('shapes/unknown.txt') as f:
         shapes = [eval(l) for l in f.readlines()]
