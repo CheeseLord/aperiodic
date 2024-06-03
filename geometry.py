@@ -70,6 +70,16 @@ while len(WIDGETS) < 20000:
     _toExpand.extend([x for x in getNeighbors(w) if x not in _used])
 
 
+
+def getFaces(shape):
+    faces = []
+    for w in shape:
+        for neighbor in getNeighbors(w):
+            if neighbor not in shape:
+                faces.append((w, neighbor))
+    return faces
+
+
 def orient(shape, widget, orientation):
     arr = np.array(shape)
     targetCenter, targetDirection = widget

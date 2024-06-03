@@ -57,43 +57,6 @@ def _generateHelper(shape, o, t):
     return shapes
 
 
-"""
-def generateShapes(n):
-    o = 3 * n
-    t = 4 * n
-
-    shapes = [[
-        ((0, 0, 0), (1, 0, 0)),
-        ((0, 0, 0), (1, 1, 1)),
-    ]]
-    for _ in range(7 * n - 2):
-        newShapes = []
-
-        for shape in shapes:
-            neighbors = set()
-            for w in shape:
-                neighbors = neighbors.union(getNeighbors(w))
-            neighbors = neighbors.difference(shape)
-            for w in neighbors:
-                newShapes += [shape + [w]]
-
-        newShapes = [
-            x for x in newShapes
-            if sum(0 in w[1] for w in x) <= o
-            and sum(0 not in w[1] for w in x) <= t
-        ]
-        newShapes = [
-            list(y) for y in {tuple(sorted(x)) for x in newShapes}
-        ]
-        newShapes = [
-            list(y) for y in {tuple(makeCanonical(x)) for x in newShapes}
-        ]
-        shapes = newShapes
-
-    return shapes
-"""
-
-
 def makeCanonical(shape):
     best = None
     arr = np.array(shape)
