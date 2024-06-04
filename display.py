@@ -63,14 +63,14 @@ def drawShapes(ax, shapes):
             hex(int(x * 255))[2:]
             for x in colorsys.hsv_to_rgb(*hsv)
         )
-        for center, direction in shape:
-            if 0 in direction:
-                index = (np.array(direction) != 0).argmax()
+        for widget in shape:
+            if widget.isOct:
+                index = (np.array(widget.direction) != 0).argmax()
                 faces = np.roll(OCTAHEDRON_FACES, index, axis=2)
-                faces[:, :, index] *= direction[index]
-                faces += center
+                faces[:, :, index] *= widget.direction[index]
+                faces += widget.center
             else:
-                faces = TETRAHEDRON_FACES * direction + center
+                faces = TETRAHEDRON_FACES * widget.direction + widget.center
 
             lower = np.minimum(lower, np.min(np.min(faces, axis=0), axis=0))
             upper = np.maximum(upper, np.max(np.max(faces, axis=0), axis=0))
@@ -95,14 +95,14 @@ def drawHull(ax, shapes, color):
 
     vertices = []
     for shape in shapes:
-        for center, direction in shape:
-            if 0 in direction:
-                index = (np.array(direction) != 0).argmax()
+        for widget in shape:
+            if widget.isOct:
+                index = (np.array(widget.direction) != 0).argmax()
                 faces = np.roll(OCTAHEDRON_FACES, index, axis=2)
-                faces[:, :, index] *= direction[index]
-                faces += center
+                faces[:, :, index] *= widget.direction[index]
+                faces += widget.center
             else:
-                faces = TETRAHEDRON_FACES * direction + center
+                faces = TETRAHEDRON_FACES * widget.direction + widget.center
 
             lower = np.minimum(lower, np.min(np.min(faces, axis=0), axis=0))
             upper = np.maximum(upper, np.max(np.max(faces, axis=0), axis=0))

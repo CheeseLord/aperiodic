@@ -21,7 +21,7 @@ class Shape:
         return Shape([w.translate(offset) for w in self])
 
     def orient(self, target, orientation):
-        arr = np.array([tuple(w) for w in self.widgets])
+        arr = np.array([tuple(w) for w in self])
 
         if target.isOct:
             index, rotation = divmod(orientation, 4)

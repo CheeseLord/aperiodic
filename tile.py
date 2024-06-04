@@ -2,7 +2,10 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 from display import drawShapes
-from geometry import WIDGETS, orient
+from widget import getFirstWidgets
+
+
+WIDGETS = getFirstWidgets(1000)
 
 
 class InteractiveTiling:
@@ -28,10 +31,10 @@ class InteractiveTiling:
         if event.key == '1':
             while True:
                 self.orientation = (self.orientation + 1) % 12
-                newShape = orient(
-                    self.shape, WIDGETS[self.widgetIndex], self.orientation
+                newShape = self.shape.orient(
+                    WIDGETS[self.widgetIndex], self.orientation
                 )
-                if not (self.used & set(newShape)):
+                if not (self.used & set(newShape.widgets)):
                     break
 
             self.redraw()
@@ -40,22 +43,22 @@ class InteractiveTiling:
         if event.key == '2':
             while True:
                 self.orientation = (self.orientation - 1) % 12
-                newShape = orient(
-                    self.shape, WIDGETS[self.widgetIndex], self.orientation
+                newShape = self.shape.orient(
+                    WIDGETS[self.widgetIndex], self.orientation
                 )
-                if not (self.used & set(newShape)):
+                if not (self.used & set(newShape.widgets)):
                     break
 
             self.redraw()
 
         # Accept current, add new.
         if event.key == '3':
-            currentShape = orient(
-                self.shape, WIDGETS[self.widgetIndex], self.orientation
+            currentShape = self.shape.orient(
+                WIDGETS[self.widgetIndex], self.orientation
             )
             self.shapes.append(currentShape)
             self.positions.append((self.widgetIndex, self.orientation))
-            used = self.used | set(currentShape)
+            used = self.used | set(currentShape.widgets)
 
             for i, widget in enumerate(WIDGETS):
                 if widget not in used:
@@ -63,10 +66,10 @@ class InteractiveTiling:
                     break
 
             for orientation in range(12):
-                newShape = orient(
-                    self.shape, WIDGETS[self.widgetIndex], orientation
+                newShape = self.shape.orient(
+                    WIDGETS[self.widgetIndex], orientation
                 )
-                if not (used & set(newShape)):
+                if not (used & set(newShape.widgets)):
                     self.used = used
                     self.orientation = orientation
                     break
@@ -84,7 +87,7 @@ class InteractiveTiling:
                 return
             shape = self.shapes.pop()
             self.widgetIndex, self.orientation = self.positions.pop()
-            self.used -= set(shape)
+            self.used -= set(shape.widgets)
 
             self.redraw()
 
@@ -96,8 +99,8 @@ class InteractiveTiling:
 
     def redraw(self):
         self.ax.clear()
-        newShape = orient(
-            self.shape, WIDGETS[self.widgetIndex], self.orientation
+        newShape = self.shape.orient(
+            WIDGETS[self.widgetIndex], self.orientation
         )
         drawShapes(self.ax, self.shapes + [newShape])
         ax.scatter([0], [0], [0], c='k')
@@ -111,12 +114,16 @@ if __name__ == '__main__':
     import argparse
     import random
 
+    from shape import Shape
+    from widget import Widget
+
+
     parser = argparse.ArgumentParser()
     parser.add_argument('shapeFile', nargs='?', default='shapes/unknown.txt')
     args = parser.parse_args()
 
     with open(args.shapeFile) as f:
-        shapes = [eval(l) for l in f.readlines()]
+        shapes = [Shape([Widget(*w) for w in eval(l)]) for l in f.readlines()]
 
     fig = plt.figure()
     ax = fig.add_subplot(111, projection='3d')
