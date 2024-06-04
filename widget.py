@@ -47,17 +47,21 @@ for direction in DIRECTIONS:
 
 class Widget:
     def __init__(self, center, direction):
-        self.center = center
-        self.direction = direction
+        self.center = tuple(center)
+        self.direction = tuple(direction)
 
     def __eq__(self, other):
         return self.center == other.center and self.direction == other.direction
 
+    def __iter__(self):
+        yield self.center
+        yield self.direction
+
     def __hash__(self):
-        return hash((self.center, self.direction))
+        return hash(tuple(self))
 
     def __repr__(self):
-        return str((self.center, self.direction))
+        return repr(tuple(self))
 
     @property
     def isOct(self):
@@ -83,7 +87,7 @@ class Widget:
         return Widget(tuple(np.array(self.center) + offset), self.direction)
 
 
-def getWidgets(n):
+def getFirstWidgets(n):
     widgets = []
     used = set()
     toExpand = [Widget((0, 0, 0), (1, 0, 0))]
