@@ -2,7 +2,14 @@ from collections import Counter, defaultdict
 import random
 import numpy as np
 
-from geometry import getFaces
+
+def getFaces(shape):
+    faces = []
+    for w in shape:
+        for neighbor in getNeighbors(w):
+            if neighbor not in shape:
+                faces.append((w, neighbor))
+    return faces
 
 
 def annotateRandom(shape):
