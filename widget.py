@@ -1,3 +1,4 @@
+import functools
 import itertools
 import numpy as np
 
@@ -45,6 +46,7 @@ for direction in DIRECTIONS:
             )
 
 
+@functools.total_ordering
 class Widget:
     def __init__(self, center, direction):
         self.center = tuple(center)
@@ -52,6 +54,9 @@ class Widget:
 
     def __eq__(self, other):
         return self.center == other.center and self.direction == other.direction
+
+    def __lt__(self, other):
+        return tuple(self) < tuple(other)
 
     def __iter__(self):
         yield self.center

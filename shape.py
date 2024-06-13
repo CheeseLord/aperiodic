@@ -5,14 +5,27 @@ from widget import Widget
 
 class Shape:
     def __init__(self, widgets):
-        self.widgets = widgets
+        if len(widgets) == 0:
+            self.widgets = []
+        elif isinstance(widgets[0], (tuple, list, np.ndarray)):
+            self.widgets = [Widget(*x) for x in widgets]
+        else:
+            self.widgets = list(widgets)
 
     def __eq__(self, other):
         return self.widgets == other.widgets
 
+    def __add__(self, other):
+        if isinstance(other, Shape):
+            return Shape(self.widgets + other.widgets)
+        return Shape(self.widgets + list(other))
+
     def __iter__(self):
         for w in self.widgets:
             yield w
+
+    def __hash__(self):
+        return hash(tuple(self))
 
     def __repr__(self):
         return repr(self.widgets)
@@ -54,7 +67,7 @@ class Shape:
 
             arr[:, 0] += target.center
 
-            return Shape([Widget(*x) for x in arr])
+            return Shape(arr)
 
         else:
             index, rotation = divmod(orientation, 3)
@@ -85,5 +98,5 @@ class Shape:
 
             arr[:, 0] += target.center
 
-            return Shape([Widget(*x) for x in arr])
+            return Shape(arr)
 

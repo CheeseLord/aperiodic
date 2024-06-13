@@ -123,7 +123,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     with open(args.shapeFile) as f:
-        shapes = [Shape([Widget(*w) for w in eval(l)]) for l in f.readlines()]
+        shapes = [Shape(eval(l)) for l in f.readlines()]
 
     fig = plt.figure()
     ax = fig.add_subplot(111, projection='3d')

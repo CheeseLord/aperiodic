@@ -2,38 +2,44 @@ import itertools
 import numpy as np
 import random
 
-from geometry import getNeighbors
+from widget import Widget
+from shape import Shape
 
 
 def generateRandomShape(n):
-    shape = [
+    shape = Shape([
         ((0, 0, 0), (1, 0, 0)),
         ((0, 0, 0), (1, 1, 1)),
-    ]
+    ])
 
-    while len(shape) < 7 * n:
+    while len(shape.widgets) < 7 * n:
         neighbors = set()
-        for x in shape:
-            neighbors = neighbors.union(getNeighbors(x))
-        neighbors = neighbors.difference(shape)
+        for w in shape:
+            neighbors = neighbors.union(w.neighbors)
+        neighbors = neighbors.difference(shape.widgets)
         newShape = shape + [random.choice(list(neighbors))]
 
-        octs = sum(0 in w[1] for w in newShape)
-        tets = len(newShape) - octs
+        octs = sum(w.isOct for w in newShape)
+        tets = len(newShape.widgets) - octs
         if octs <= 3 * n and tets <= 4 * n:
             shape = newShape
 
     return makeCanonical(shape)
 
 
+
 def generateAllShapes(n):
-    shape = [
+    shape = Shape([
         ((0, 0, 0), (1, 0, 0)),
         ((0, 0, 0), (1, 1, 1)),
-    ]
+    ])
     shapes = _generateHelper(shape, 3 * n - 1, 4 * n - 1)
-    shapes = [list(y) for y in {tuple(sorted(x)) for x in shapes}]
-    shapes = [list(y) for y in {tuple(makeCanonical(x)) for x in shapes}]
+    shapes = [
+        Shape(t) for t in {tuple(sorted(s.widgets, key=tuple)) for s in shapes}
+    ]
+    shapes = [
+        Shape(t) for t in {tuple(makeCanonical(s)) for s in shapes}
+    ]
     return shapes
 
 
@@ -42,16 +48,15 @@ def _generateHelper(shape, o, t):
         return [shape]
 
     neighbors = set()
-    for x in shape:
-        neighbors = neighbors.union(getNeighbors(x))
-    neighbors = neighbors.difference(shape)
+    for w in shape:
+        neighbors = neighbors.union(w.neighbors)
+    neighbors = neighbors.difference(shape.widgets)
 
     shapes = []
     for other in neighbors:
-        isOct = (0 in other[1])
-        if isOct and o > 0:
+        if other.isOct and o > 0:
             shapes += _generateHelper(shape + [other], o - 1, t)
-        if not isOct and t > 0:
+        if other.isTet and t > 0:
             shapes += _generateHelper(shape + [other], o, t - 1)
 
     return shapes
@@ -59,17 +64,17 @@ def _generateHelper(shape, o, t):
 
 def makeCanonical(shape):
     best = None
-    arr = np.array(shape)
+    arr = np.array([tuple(w) for w in shape])
 
     for sign in itertools.product([1, -1], repeat=3):
         for perm in itertools.permutations(range(3)):
             modified = arr[:, :, perm] * sign
             modified[:, 0] -= np.min(modified[:, 0], axis=0)
-            newShape = sorted([(tuple(x[0]), tuple(x[1])) for x in modified])
+            newShape = Shape(sorted([Widget(*w) for w in modified], key=tuple))
             if best is None:
                 best = newShape
             else:
-                best = min(best, newShape)
+                best = min(best, newShape, key=list)
 
     return best
 
@@ -83,13 +88,13 @@ if __name__ == '__main__':
 
 
     with open('shapes/allShapes.txt') as f:
-        shapes = {tuple(eval(l)) for l in f.readlines()}
+        shapes = {Shape(eval(l)) for l in f.readlines()}
 
     newShapes = []
     repeats = 0
     while len(newShapes) < int(args.numShapes):
         shape = generateRandomShape(2)
-        if tuple(shape) in shapes or shape in newShapes:
+        if shape in shapes or shape in newShapes:
             print('Repeated shape')
             repeats += 1
             continue
