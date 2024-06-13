@@ -3,7 +3,7 @@ import os
 
 def cleanup():
     with open('shapes/unknown.txt') as f:
-        unknown = [eval(l) for l in f.readlines()]
+        unknown = [Shape(eval(l)) for l in f.readlines()]
     try:
         os.remove(f'shapes/working/unknown.txt')
     except OSError:
@@ -11,7 +11,7 @@ def cleanup():
 
     for name in os.listdir('shapes/working'):
         with open(f'shapes/working/{name}') as f:
-            shapes = [eval(l) for l in f.readlines()]
+            shapes = [Shape(eval(l)) for l in f.readlines()]
             unknown = [s for s in unknown if s not in shapes]
         with open(f'shapes/{name}', 'a+') as f:
             for shape in shapes:

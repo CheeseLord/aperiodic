@@ -12,23 +12,21 @@ def correct():
         )
         for name in names:
             with open(f'shapes/{name}') as f:
-                shapes = [eval(l) for l in f.readlines()]
+                shapes = [Shape(eval(l)) for l in f.readlines()]
             for shape in shapes:
-                t = tuple(shape)
-                if t in seen:
+                if shape in seen:
                     continue
                 with open(f'shapes/working/{name}', 'a+') as f:
                     f.write(f'{shape}\n')
-                seen.add(t)
+                seen.add(shape)
     with open(f'shapes/allShapes.txt') as f:
-        shapes = [eval(l) for l in f.readlines()]
+        shapes = [Shape(eval(l)) for l in f.readlines()]
     for shape in shapes:
-        t = tuple(shape)
-        if t in seen:
+        if shape in seen:
             continue
         with open(f'shapes/working/unknown.txt', 'a+') as f:
             f.write(f'{shape}\n')
-        seen.add(t)
+        seen.add(shape)
 
     for name in os.listdir('shapes/working'):
         os.replace(f'shapes/working/{name}', f'shapes/{name}')
