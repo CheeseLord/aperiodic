@@ -5,30 +5,32 @@ from pysat.pb import PBEnc
 from pysat.solvers import Glucose3
 import random
 
-from geometry import WIDGETS, orient
+from shape import Shape
+from widget import getFirstWidgets
 
 
-def cover(shape, numWidgets):
+def cover(shape, numWidgets, useReflections=False):
     volume = len(shape) // 7
-    widgets = WIDGETS[:numWidgets]
+    widgets = getFirstWidgets(numWidgets)
+    if useReflections:
+        reflections = [1, -1]
+    else:
+        reflections = [1]
 
     # Find all possible tiles containing these widgets.
     shapes = []
     s = set()
     covering = defaultdict(list)
     for widget in widgets:
-        for reflection in [1, -1]:
-            flipped = [
-                (tuple(x[0]), tuple(x[1]))
-                for x in np.array(shape) * reflection
-            ]
+        for reflection in reflections:
+            flipped = Shape(np.array(shape) * reflection)
             for orientation in range(12 * volume):
-                newShape = sorted(orient(flipped, widget, orientation))
-                if tuple(newShape) in s:
+                newShape = Shape(sorted(flipped.orient(widget, orientation)))
+                if newShape in s:
                     continue
 
                 shapes.append(newShape)
-                s.add(tuple(newShape))
+                s.add(newShape)
                 for w in newShape:
                     covering[w].append(len(shapes))
 
@@ -77,7 +79,7 @@ if __name__ == '__main__':
     wrapped = cover
 
     with open('shapes/unknown.txt') as f:
-        shapes = [eval(l) for l in f.readlines()]
+        shapes = [Shape(eval(l)) for l in f.readlines()]
 
     for i, shape in enumerate(shapes, start=1):
         try:
@@ -101,7 +103,7 @@ if __name__ == '__main__':
         combined = []
         for x in result:
             combined += x
-        for widget in WIDGETS[:numWidgets]:
+        for widget in getFirstWidgets(numWidgets):
             assert widget in combined
         assert len(combined) == len(set(combined))
 

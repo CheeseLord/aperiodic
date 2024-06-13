@@ -12,6 +12,9 @@ class Shape:
         else:
             self.widgets = list(widgets)
 
+    def __len__(self):
+        return len(self.widgets)
+
     def __eq__(self, other):
         return self.widgets == other.widgets
 
@@ -29,6 +32,9 @@ class Shape:
 
     def __repr__(self):
         return repr(self.widgets)
+
+    def __array__(self):
+        return np.array([tuple(w) for w in self.widgets])
 
     def translate(self, offset):
         return Shape([w.translate(offset) for w in self])

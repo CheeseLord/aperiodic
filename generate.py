@@ -12,7 +12,7 @@ def generateRandomShape(n):
         ((0, 0, 0), (1, 1, 1)),
     ])
 
-    while len(shape.widgets) < 7 * n:
+    while len(shape) < 7 * n:
         neighbors = set()
         for w in shape:
             neighbors = neighbors.union(w.neighbors)
@@ -64,7 +64,7 @@ def _generateHelper(shape, o, t):
 
 def makeCanonical(shape):
     best = None
-    arr = np.array([tuple(w) for w in shape])
+    arr = np.array(shape)
 
     for sign in itertools.product([1, -1], repeat=3):
         for perm in itertools.permutations(range(3)):
