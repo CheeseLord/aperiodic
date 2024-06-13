@@ -34,7 +34,7 @@ class InteractiveTiling:
                 newShape = self.shape.orient(
                     WIDGETS[self.widgetIndex], self.orientation
                 )
-                if not (self.used & set(newShape.widgets)):
+                if not (self.used & set(newShape)):
                     break
 
             self.redraw()
@@ -46,7 +46,7 @@ class InteractiveTiling:
                 newShape = self.shape.orient(
                     WIDGETS[self.widgetIndex], self.orientation
                 )
-                if not (self.used & set(newShape.widgets)):
+                if not (self.used & set(newShape)):
                     break
 
             self.redraw()
@@ -58,7 +58,7 @@ class InteractiveTiling:
             )
             self.shapes.append(currentShape)
             self.positions.append((self.widgetIndex, self.orientation))
-            used = self.used | set(currentShape.widgets)
+            used = self.used | set(currentShape)
 
             for i, widget in enumerate(WIDGETS):
                 if widget not in used:
@@ -69,7 +69,7 @@ class InteractiveTiling:
                 newShape = self.shape.orient(
                     WIDGETS[self.widgetIndex], orientation
                 )
-                if not (used & set(newShape.widgets)):
+                if not (used & set(newShape)):
                     self.used = used
                     self.orientation = orientation
                     break
@@ -87,7 +87,7 @@ class InteractiveTiling:
                 return
             shape = self.shapes.pop()
             self.widgetIndex, self.orientation = self.positions.pop()
-            self.used -= set(shape.widgets)
+            self.used -= set(shape)
 
             self.redraw()
 

@@ -5,8 +5,9 @@ import numpy as np
 from pysat.solvers import Glucose3
 import random
 
-from geometry import DIRECTIONS, orient
 from linearAlgebra import makeCanonical
+from shape import Shape
+from widget import DIRECTIONS, Widget
 
 
 def getFundamentalWidgets(basis):
@@ -29,50 +30,52 @@ def getFundamentalWidgets(basis):
 
     assert round(abs(np.linalg.det(basis))) == 2 * len(centers)
 
-    return list(itertools.product(centers, DIRECTIONS))
+    return [Widget(*w) for w in itertools.product(centers, DIRECTIONS)]
 
 
 def wrap(shape, basis, fundamental):
     mat = np.array(basis).T
 
     wrapped = []
-    for center, direction in shape:
-        center = np.array(center)
-        for c, d in fundamental:
-            if d != direction:
+    for widget in shape:
+        for target in fundamental:
+            if target.direction != widget.direction:
                 continue
-            coeffs = np.linalg.solve(mat, center - c)
+            coeffs = np.linalg.solve(
+                mat, np.array(widget.center) - target.center
+            )
             if np.allclose(coeffs - np.round(coeffs), 0):
-                wrapped.append((c, d))
+                wrapped.append(target)
                 break
 
-    return wrapped
+    return Shape(wrapped)
 
 
-def isRepeatingBasis(shape, basis, fundamental):
+def isRepeatingBasis(shape, basis, fundamental, useReflections=False):
     volume = len(shape) // 7
+    if useReflections:
+        reflections = [1, -1]
+    else:
+        reflections = [1]
 
     # Find all possible tiles containing these widgets.
     shapes = []
     s = set()
     covering = defaultdict(list)
     for widget in fundamental:
-        for reflection in [1, -1]:
-            flipped = [
-                (tuple(x[0]), tuple(x[1]))
-                for x in np.array(shape) * reflection
-            ]
+        for reflection in reflections:
+            flipped = Shape(np.array(shape) * reflection)
             for orientation in range(12 * volume):
                 newShape = wrap(
-                    orient(flipped, widget, orientation), basis, fundamental
+                    flipped.orient(widget, orientation), basis, fundamental
                 )
                 if len(newShape) != len(set(newShape)):
                     continue
-                if tuple(newShape) in s:
+                if newShape in s:
                     continue
 
                 shapes.append(newShape)
-                s.add(tuple(newShape))
+                s.add(newShape)
                 for w in newShape:
                     covering[w].append(len(shapes))
 
@@ -129,9 +132,9 @@ if __name__ == '__main__':
     BATCH_SIZE = 20
 
     with open('shapes/allShapes.txt') as f:
-        allShapes = [eval(l) for l in f.readlines()]
+        allShapes = [Shape(eval(l)) for l in f.readlines()]
     with open('shapes/unknown.txt') as f:
-        shapes = [eval(l) for l in f.readlines()]
+        shapes = [Shape(eval(l)) for l in f.readlines()]
     with open('shapes/bases.txt') as f:
         bases = [eval(l) for l in f.readlines()]
 

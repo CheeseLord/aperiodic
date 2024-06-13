@@ -16,11 +16,11 @@ def generateRandomShape(n):
         neighbors = set()
         for w in shape:
             neighbors = neighbors.union(w.neighbors)
-        neighbors = neighbors.difference(shape.widgets)
+        neighbors = neighbors.difference(shape)
         newShape = shape + [random.choice(list(neighbors))]
 
         octs = sum(w.isOct for w in newShape)
-        tets = len(newShape.widgets) - octs
+        tets = len(newShape) - octs
         if octs <= 3 * n and tets <= 4 * n:
             shape = newShape
 
@@ -35,7 +35,7 @@ def generateAllShapes(n):
     ])
     shapes = _generateHelper(shape, 3 * n - 1, 4 * n - 1)
     shapes = [
-        Shape(t) for t in {tuple(sorted(s.widgets, key=tuple)) for s in shapes}
+        Shape(t) for t in {tuple(sorted(s, key=tuple)) for s in shapes}
     ]
     shapes = [
         Shape(t) for t in {tuple(makeCanonical(s)) for s in shapes}
@@ -50,7 +50,7 @@ def _generateHelper(shape, o, t):
     neighbors = set()
     for w in shape:
         neighbors = neighbors.union(w.neighbors)
-    neighbors = neighbors.difference(shape.widgets)
+    neighbors = neighbors.difference(shape)
 
     shapes = []
     for other in neighbors:

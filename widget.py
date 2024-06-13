@@ -68,6 +68,9 @@ class Widget:
     def __repr__(self):
         return repr(tuple(self))
 
+    def __array__(self):
+        return np.array(tuple(self))
+
     @property
     def isOct(self):
         return 0 in self.direction
