@@ -2,14 +2,7 @@ from collections import Counter, defaultdict
 import random
 import numpy as np
 
-
-def getFaces(shape):
-    faces = []
-    for w in shape:
-        for neighbor in getNeighbors(w):
-            if neighbor not in shape:
-                faces.append((w, neighbor))
-    return faces
+from shape import Shape
 
 
 def annotateRandom(shape):
@@ -17,15 +10,19 @@ def annotateRandom(shape):
     ot = []
     to = []
     tt = []
-    for a, b in getFaces(shape):
-        if 0 in a[1] and 0 in b[1]:
-            oo.append((a, b))
-        elif 0 in a[1]:
-            ot.append((a, b))
-        elif 0 in b[1]:
-            to.append((a, b))
-        else:
-            tt.append((a, b))
+    for widget in shape:
+        for neighbor in widget.neighbors:
+            if neighbor in shape:
+                continue
+            face = (widget, neighbor)
+            if widget.isOct and neighbor.isOct:
+                oo.append(face)
+            elif widget.isOct:
+                ot.append(face)
+            elif neighbor.isOct:
+                to.append(face)
+            else:
+                tt.append(face)
 
     otLabels = [1]
     while len(otLabels) < len(ot):
@@ -46,7 +43,7 @@ def annotateRandom(shape):
 
     faces = ot + to + oo + tt
     labels = otLabels + toLabels + ooLabels + ttLabels
-    return list(zip(faces, labels))
+    shape.faces = dict(zip(faces, labels))
 
 
 def makeSequence(n):
@@ -79,13 +76,4 @@ def makeSequence(n):
         seq[used[-j]] = -i
 
     return list(seq)
-
-
-if __name__ == '__main__':
-    with open('shapes/allShapes.txt') as f:
-        shapes = [eval(l) for l in f.readlines()]
-    shape = shapes[0]
-
-    for x in annotateRandom(shape):
-        print(x)
 

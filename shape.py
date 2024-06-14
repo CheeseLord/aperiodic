@@ -4,13 +4,15 @@ from widget import Widget
 
 
 class Shape:
-    def __init__(self, widgets):
+    def __init__(self, widgets, faces=None):
         if len(widgets) == 0:
             self.widgets = []
         elif isinstance(widgets[0], (tuple, list, np.ndarray)):
             self.widgets = [Widget(*x) for x in widgets]
         else:
             self.widgets = list(widgets)
+
+        self.faces = faces
 
     def __len__(self):
         return len(self.widgets)
@@ -27,6 +29,11 @@ class Shape:
         for w in self.widgets:
             yield w
 
+    def __contains__(self, item):
+        if isinstance(item, tuple):
+            item = Widget(*item)
+        return item in self.widgets
+
     def __hash__(self):
         return hash(tuple(self))
 
@@ -40,7 +47,7 @@ class Shape:
         return Shape([w.translate(offset) for w in self])
 
     def orient(self, target, orientation):
-        arr = np.array([tuple(w) for w in self])
+        arr = np.array(self)
 
         if target.isOct:
             index, rotation = divmod(orientation, 4)
