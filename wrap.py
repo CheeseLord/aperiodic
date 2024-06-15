@@ -6,7 +6,7 @@ from pysat.solvers import Glucose3
 import random
 
 from linearAlgebra import makeCanonical
-from shape import Shape
+from shape import Shape, load
 from widget import DIRECTIONS, Widget
 
 
@@ -131,10 +131,8 @@ if __name__ == '__main__':
     PROCESSES = 4
     BATCH_SIZE = 20
 
-    with open('shapes/allShapes.txt') as f:
-        allShapes = [Shape(eval(l)) for l in f.readlines()]
-    with open('shapes/unknown.txt') as f:
-        shapes = [Shape(eval(l)) for l in f.readlines()]
+    allShapes = load('shapes/allShapes.txt')
+    shapes = load('shapes/unknown.txt')
     with open('shapes/bases.txt') as f:
         bases = [eval(l) for l in f.readlines()]
 

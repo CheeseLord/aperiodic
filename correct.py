@@ -1,6 +1,8 @@
 import os
 import re
 
+from shape import load
+
 
 def correct():
     seen = set()
@@ -11,17 +13,14 @@ def correct():
             key=lambda x: int(re.match('[^\d]*(\d+)[^\d]*', x).groups()[0])
         )
         for name in names:
-            with open(f'shapes/{name}') as f:
-                shapes = [Shape(eval(l)) for l in f.readlines()]
-            for shape in shapes:
+            for shape in load(f'shapes/{name}'):
                 if shape in seen:
                     continue
                 with open(f'shapes/working/{name}', 'a+') as f:
                     f.write(f'{shape}\n')
                 seen.add(shape)
-    with open(f'shapes/allShapes.txt') as f:
-        shapes = [Shape(eval(l)) for l in f.readlines()]
-    for shape in shapes:
+
+    for shape in load(f'shapes/allShapes.txt'):
         if shape in seen:
             continue
         with open(f'shapes/working/unknown.txt', 'a+') as f:

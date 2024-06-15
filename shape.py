@@ -113,3 +113,15 @@ class Shape:
 
             return Shape(arr)
 
+
+def load(path):
+    shapes = []
+    with open(path) as f:
+        for line in f.readlines():
+            data = eval(line)
+            if isinstance(data, list):
+                shapes.append(Shape(data))
+            else:
+                shapes[-1].faces = data
+    return shapes
+

@@ -5,7 +5,7 @@ from pysat.pb import PBEnc
 from pysat.solvers import Glucose3
 import random
 
-from shape import Shape
+from shape import Shape, load
 from widget import getFirstWidgets
 
 
@@ -78,8 +78,7 @@ if __name__ == '__main__':
     #wrapped = timeout_decorator.timeout(TIMEOUT, use_signals=False)(cover)
     wrapped = cover
 
-    with open('shapes/unknown.txt') as f:
-        shapes = [Shape(eval(l)) for l in f.readlines()]
+    shapes = load('shapes/unknown.txt')
 
     for i, shape in enumerate(shapes, start=1):
         try:

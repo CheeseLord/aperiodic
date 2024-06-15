@@ -114,7 +114,7 @@ if __name__ == '__main__':
     import argparse
     import random
 
-    from shape import Shape
+    from shape import load
     from widget import Widget
 
 
@@ -122,13 +122,11 @@ if __name__ == '__main__':
     parser.add_argument('shapeFile', nargs='?', default='shapes/unknown.txt')
     args = parser.parse_args()
 
-    with open(args.shapeFile) as f:
-        shapes = [Shape(eval(l)) for l in f.readlines()]
+    shapes = load(args.shapeFile)
+    shape = random.choice(shapes)
 
     fig = plt.figure()
     ax = fig.add_subplot(111, projection='3d')
-
-    shape = random.choice(shapes)
 
     tiling = InteractiveTiling(fig, ax, shape)
     plt.show()

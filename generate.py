@@ -3,7 +3,7 @@ import numpy as np
 import random
 
 from widget import Widget
-from shape import Shape
+from shape import Shape, load
 
 
 def generateRandomShape(n):
@@ -87,8 +87,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
 
-    with open('shapes/allShapes.txt') as f:
-        shapes = {Shape(eval(l)) for l in f.readlines()}
+    shapes = set(load('shapes/allShapes.txt'))
 
     newShapes = []
     repeats = 0

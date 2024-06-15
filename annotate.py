@@ -2,8 +2,6 @@ from collections import Counter, defaultdict
 import random
 import numpy as np
 
-from shape import Shape
-
 
 def annotateRandom(shape):
     oo = []
@@ -76,4 +74,22 @@ def makeSequence(n):
         seq[used[-j]] = -i
 
     return list(seq)
+
+
+if __name__ == '__main__':
+    import argparse
+
+    from shape import load
+
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument('numShapes')
+    args = parser.parse_args()
+    numShapes = int(args.numShapes)
+
+    shapes = load('shapes/allShapes.txt')
+
+    for _ in range(numShapes):
+        shape = random.choice(shapes)
+        annotateRandom(shape)
 
