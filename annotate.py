@@ -92,4 +92,5 @@ if __name__ == '__main__':
     for _ in range(numShapes):
         shape = random.choice(shapes)
         annotateRandom(shape)
+        shape.save('shapes/unknown.txt')
 

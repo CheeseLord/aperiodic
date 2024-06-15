@@ -12,15 +12,15 @@ def cleanup():
 
     for name in os.listdir('shapes/working'):
         shapes = load(f'shapes/working/{name}')
+        for shape in shapes:
+            shape.save(f'shapes/{name}')
+
         unknown = [s for s in unknown if s not in shapes]
-        with open(f'shapes/{name}', 'a+') as f:
-            for shape in shapes:
-                f.write(f'{shape}\n')
         os.remove(f'shapes/working/{name}')
 
-    with open('shapes/working/unknown.txt', 'a+') as f:
-        for shape in unknown:
-            f.write(f'{shape}\n')
+    for shape in unknown:
+        shape.save('shapes/working/unknown.txt')
+
     os.replace(f'shapes/working/unknown.txt', f'shapes/unknown.txt')
 
 

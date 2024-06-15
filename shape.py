@@ -113,6 +113,12 @@ class Shape:
 
             return Shape(arr)
 
+    def save(self, path):
+        with open(path, 'a') as f:
+            f.write(f'{self}\n')
+            if self.faces is not None:
+                f.write(f'{self.faces}\n')
+
 
 def load(path):
     shapes = []

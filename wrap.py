@@ -136,6 +136,7 @@ if __name__ == '__main__':
     with open('shapes/bases.txt') as f:
         bases = [eval(l) for l in f.readlines()]
 
+    bases = bases[:1]
     # bases = bases[:207]
     # bases = bases[207:]
 
@@ -158,8 +159,7 @@ if __name__ == '__main__':
             tiling, basis = result
             period = len(tiling)
             print(f'{i: 5d}: Periodic {period} ({basis})')
-            with open(f'shapes/working/periodic-{period}.txt', 'a') as f:
-                f.write(f'{shape}\n')
+            shape.save(f'shapes/working/periodic-{period}.txt')
 
             index = allShapes.index(shape) + 1
             with open(f'shapes/certificates/{index:05d}.txt', 'w+') as f:

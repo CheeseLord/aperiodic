@@ -16,15 +16,13 @@ def correct():
             for shape in load(f'shapes/{name}'):
                 if shape in seen:
                     continue
-                with open(f'shapes/working/{name}', 'a+') as f:
-                    f.write(f'{shape}\n')
+                shape.save(f'shapes/working/{name}')
                 seen.add(shape)
 
     for shape in load(f'shapes/allShapes.txt'):
         if shape in seen:
             continue
-        with open(f'shapes/working/unknown.txt', 'a+') as f:
-            f.write(f'{shape}\n')
+        shape.save(f'shapes/working/unknown.txt')
         seen.add(shape)
 
     for name in os.listdir('shapes/working'):

@@ -100,7 +100,6 @@ if __name__ == '__main__':
         newShapes.append(shape)
     print(f'{repeats} repeats')
 
-    with open('shapes/allShapes.txt', 'a') as f:
-        for shape in newShapes:
-            f.write(f'{shape}\n')
+    for shape in newShapes:
+        shape.save('shapes/allShapes.txt')
 
