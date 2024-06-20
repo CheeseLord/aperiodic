@@ -104,18 +104,17 @@ class Shape:
                 if index == 0:
                     break
 
-            arr[:, 0] -= widget.center
-            faceArr[:, 0] -= widget.center
-
-            # TODO: Make this a matrix.
-            # Rotate the direction onto the target.
-            arr *= widget.direction
-            faceArr *= widget.direction
+            # Align the widget's current direction with the target's.
+            align = np.diag(widget.direction)
             if np.prod(widget.direction) * np.prod(target.direction) == -1:
-                arr = arr[:, :, [1, 0, 2]]
-                faceArr = faceArr[:, :, [1, 0, 2]]
-            arr *= target.direction
-            faceArr *= target.direction
+                align = np.matmul([[0, 1, 0], [1, 0, 0], [0, 0, 1]], align)
+            align = np.matmul(np.diag(target.direction), align)
+
+            arr[:, 0] -= widget.center
+            arr = np.matmul(arr, align.T)
+
+            faceArr[:, 0] -= widget.center
+            faceArr = np.matmul(faceArr, align.T)
 
             # Use the Rodrigues formula to rotate around the target axis.
             x, y, z = target.direction
@@ -126,11 +125,12 @@ class Shape:
             ], dtype=int) // 2
 
         rot = np.linalg.matrix_power(mat, rotation)
-        arr = np.matmul(arr, rot)
-        faceArr = np.matmul(faceArr, rot)
 
+        arr = np.matmul(arr, rot)
         arr[:, 0] += target.center
+
         faceArr[:, 0] += target.center
+        faceArr = np.matmul(faceArr, rot)
 
         faces = {}
         for i, label in zip(range(0, len(faceArr), 2), self.faces.values()):
