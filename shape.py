@@ -56,15 +56,9 @@ class Shape:
         return Shape([w.translate(offset) for w in self], newFaces)
 
     def orient(self, target, orientation):
-        arr = np.array(self)
-        faceArr = []
-        for w, x in self.faces:
-            faceArr += [tuple(w), tuple(x)]
-        faceArr = np.array(faceArr)
-
-        # TODO: Unify this.
         if target.isOct:
-            index, rotation = divmod(orientation, 4)
+            # Find the widget to align.
+            index, rotations = divmod(orientation, 4)
             index += 1
             for widget in self:
                 if widget.isOct:
@@ -72,31 +66,30 @@ class Shape:
                 if index == 0:
                     break
 
-            arr[:, 0] -= widget.center
-            faceArr[:, 0] -= widget.center
-
-            # TODO: Make this a matrix.
-            # Rotate the direction onto the target.
+            # Align the widget's current direction with the target's.
             axis = np.argmax(np.abs(widget.direction))
             targetAxis = np.argmax(np.abs(target.direction))
-            arr = np.roll(arr, targetAxis - axis, axis=2)
-            faceArr = np.roll(faceArr, targetAxis - axis, axis=2)
+            align = np.linalg.matrix_power(
+                [[0, 0, 1], [1, 0, 0], [0, 1, 0]],
+                targetAxis - axis,
+            ).astype(int)
             if widget.direction[axis] != target.direction[targetAxis]:
-                arr[:, :, targetAxis] *= -1
-                arr[:, :, (targetAxis + 1) % 3] *= -1
-                faceArr[:, :, targetAxis] *= -1
-                faceArr[:, :, (targetAxis + 1) % 3] *= -1
+                invert = np.eye(3, dtype=int)
+                invert[targetAxis] *= -1
+                invert[(targetAxis + 1) % 3] *= -1
+                align = np.matmul(invert, align)
 
-            # Use the Rodrigues formula to rotate axes.
+            # Use the Rodrigues formula to rotate around the target axis.
             x, y, z = target.direction
-            mat = np.array([
-                [x * x, -z, y],
-                [z, y * y, -x],
-                [-y, x, z * z],
+            rot = np.array([
+                [x * x, z, -y],
+                [-z, y * y, x],
+                [y, -x, z * z],
             ], dtype=int)
 
         else:
-            index, rotation = divmod(orientation, 3)
+            # Find the widget to align.
+            index, rotations = divmod(orientation, 3)
             index += 1
             for widget in self:
                 if widget.isTet:
@@ -110,31 +103,36 @@ class Shape:
                 align = np.matmul([[0, 1, 0], [1, 0, 0], [0, 0, 1]], align)
             align = np.matmul(np.diag(target.direction), align)
 
-            arr[:, 0] -= widget.center
-            arr = np.matmul(arr, align.T)
-
-            faceArr[:, 0] -= widget.center
-            faceArr = np.matmul(faceArr, align.T)
-
             # Use the Rodrigues formula to rotate around the target axis.
             x, y, z = target.direction
-            mat = np.array([
-                [0, x * y - z, x * z + y],
-                [x * y + z, 0, y * z - x],
-                [x * z - y, y * z + x, 0],
+            rot = np.array([
+                [0, x * y + z, x * z - y],
+                [x * y - z, 0, y * z + x],
+                [x * z + y, y * z - x, 0],
             ], dtype=int) // 2
 
-        rot = np.linalg.matrix_power(mat, rotation)
+        transform = np.matmul(np.linalg.matrix_power(rot, rotations), align)
 
-        arr = np.matmul(arr, rot)
+        arr = np.array(self)
+        arr[:, 0] -= widget.center
+        arr = np.matmul(arr, transform.T)
         arr[:, 0] += target.center
 
-        faceArr[:, 0] += target.center
-        faceArr = np.matmul(faceArr, rot)
+        if self.faces is None:
+            faces = None
+        else:
+            faceArr = []
+            for w, x in self.faces:
+                faceArr += [tuple(w), tuple(x)]
+            faceArr = np.array(faceArr)
 
-        faces = {}
-        for i, label in zip(range(0, len(faceArr), 2), self.faces.values()):
-            faces[(Widget(*faceArr[i]), Widget(*faceArr[i + 1]))] = label
+            faceArr[:, 0] -= widget.center
+            faceArr = np.matmul(faceArr, transform.T)
+            faceArr[:, 0] += target.center
+
+            faces = {}
+            for i, label in zip(range(0, len(faceArr), 2), self.faces.values()):
+                faces[(Widget(*faceArr[i]), Widget(*faceArr[i + 1]))] = label
 
         return Shape(arr, faces)
 
