@@ -77,7 +77,7 @@ class Widget:
 def getFirstWidgets(n):
     widgets = []
     used = set()
-    toExpand = [Widget((0, 0, 0), (2, 1, 0))]
+    toExpand = [Widget((0, 0, 0), (0, 1, 2))]
     while len(widgets) < n:
         w = toExpand[0]
         toExpand = toExpand[1:]
