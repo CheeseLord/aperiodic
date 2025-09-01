@@ -77,6 +77,11 @@ def drawShapes(ax, shapes):
     ax.axes.set_zlim3d(center[2] - width, center[2] + width)
 
 
+def getAxis():
+    fig = plt.figure()
+    return fig.add_subplot(111, projection='3d')
+
+
 if __name__ == '__main__':
     from widget import Widget, DIRECTIONS
 
