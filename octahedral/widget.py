@@ -74,6 +74,7 @@ class Widget:
     def translate(self, offset):
         return Widget(tuple(np.array(self.center) + offset), self.direction)
 
+
 def getFirstWidgets(n):
     widgets = []
     used = set()

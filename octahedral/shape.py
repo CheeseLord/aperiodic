@@ -42,6 +42,18 @@ class Shape:
     def __array__(self):
         return np.array([tuple(w) for w in self.widgets])
 
+    @property
+    def canonical(self):
+        best = None
+        for i in range(len(self)):
+            newShape = self.orient(Widget((0, 0, 0), (0, 1, 2)), i)
+            newShape = Shape(sorted(newShape.widgets, key=tuple))
+            if best is None:
+                best = newShape
+            else:
+                best = min(best, newShape, key=list)
+        return best
+
     def translate(self, offset):
         return Shape([w.translate(offset) for w in self])
 

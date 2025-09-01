@@ -42,7 +42,7 @@ def drawShapes(ax, shapes):
             reflect = False
 
             # Permute the axes.
-            indices = [list(np.abs(widget.direction)).index(i) for i in range(3)]
+            indices = np.abs(widget.direction)
             faces = faces[:, :, indices]
             reflect ^= (indices[0] > indices[1])
             reflect ^= (indices[0] > indices[2])
@@ -56,7 +56,7 @@ def drawShapes(ax, shapes):
 
             # Make sure we have a rotation, not a reflection.
             if reflect:
-                faces[:, :, indices[0]] *= -1
+                faces[:, :, list(indices).index(0)] *= -1
 
             faces += widget.center
 
