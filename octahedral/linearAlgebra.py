@@ -1,6 +1,7 @@
 import decimal
 import itertools
 import numpy as np
+from sympy import divisors
 
 
 def reduce2D(basis):
@@ -65,23 +66,28 @@ def round_(x):
     return int(decimal.Decimal(x).to_integral_value())
 
 
+def generateLattices(det):
+    lattices = []
+    for x in divisors(det):
+        for y in divisors(det // x):
+            if y > x:
+                continue
+            z = det // (x * y)
+            for a, b in itertools.product(range(x), range(y)):
+                lattices.append(makeCanonical([[x, 0, 0], [0, y, 0], [a, b, z]]))
+    lattices = {tuple(tuple(v) for v in l) for l in lattices}
+    lattices = [list(list(v) for v in l) for l in lattices]
+    return lattices
+
+
 if __name__ == '__main__':
-    import matplotlib.pyplot as plt
-
-    basis = np.random.randint(-50, 51, (3, 3))
-    reduced = reduce3D(basis)
-    print(*basis)
-    print(*reduced)
-
-    fig = plt.figure()
-    ax = fig.add_subplot(111, projection='3d')
-    ax.scatter(*zip(*[
-        np.dot(np.array(basis).T, coeff).T
-        for coeff in itertools.product(range(-3, 4), repeat=3)
-    ]), c='r', s=20)
-    ax.scatter(*zip(*[
-        np.dot(np.array(reduced).T, coeff).T
-        for coeff in itertools.product(range(-3, 4), repeat=3)
-    ]), c='b', s=10)
-    plt.show()
+    for det in range(4, 60, 4):
+        for l in generateLattices(det):
+            # Only consider lattices compatible with a body-centered cubic lattice.
+            for v in l:
+                if not (v[0] % 2 == v[1] % 2 == v[2] % 2):
+                    break
+            else:
+                with open('shapes/bases.txt', 'a') as f:
+                    f.write(f'{l}\n')
 
