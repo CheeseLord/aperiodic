@@ -133,6 +133,8 @@ if __name__ == '__main__':
     with open('shapes/bases.txt') as f:
         bases = [eval(l) for l in f.readlines()]
 
+    #bases = bases[200:]
+
     pool = mp.Pool(processes=PROCESSES)
     batches = [
         shapes[i: i + BATCH_SIZE]
