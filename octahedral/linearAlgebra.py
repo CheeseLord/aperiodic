@@ -81,7 +81,7 @@ def generateLattices(det):
 
 
 if __name__ == '__main__':
-    for det in range(4, 144, 4):
+    for det in range(168, 238, 28):
         for l in generateLattices(det):
             # Only consider lattices compatible with a body-centered cubic lattice.
             for v in l:

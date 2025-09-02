@@ -125,7 +125,7 @@ def isRepeating(shape, bases):
 if __name__ == '__main__':
     import multiprocessing as mp
 
-    PROCESSES = 4
+    PROCESSES = 5
     BATCH_SIZE = 20
 
     allShapes = load('shapes/allShapes.txt')
@@ -133,7 +133,7 @@ if __name__ == '__main__':
     with open('shapes/bases.txt') as f:
         bases = [eval(l) for l in f.readlines()]
 
-    #bases = bases[600:]
+    bases = bases[650:]
 
     pool = mp.Pool(processes=PROCESSES)
     batches = [
