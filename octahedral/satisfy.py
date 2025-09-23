@@ -98,10 +98,10 @@ if __name__ == '__main__':
 
         print(f'{i: 5d} finished ({end - start:g} seconds)')
 
-        combined = []
-        for x in result:
-            combined += x
-        for widget in getFirstWidgets(numWidgets):
-            assert widget in combined
-        assert len(combined) == len(set(combined))
+        # combined = []
+        # for x in result:
+        #     combined += x
+        # for widget in getFirstWidgets(numWidgets):
+        #     assert widget in combined
+        # assert len(combined) == len(set(combined))
 

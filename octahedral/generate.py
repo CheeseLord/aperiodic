@@ -39,9 +39,10 @@ def generateAllShapes(n):
 
 
 if __name__ == '__main__':
-    shapes = []
-    for i in range(1, 8):
-        shapes += generateAllShapes(i)
+    # shapes = []
+    # for i in range(1, 8):
+    #    shapes += generateAllShapes(i)
+    shapes = generateAllShapes(8)
 
     for shape in shapes:
         shape.save('shapes/allShapes.txt')
