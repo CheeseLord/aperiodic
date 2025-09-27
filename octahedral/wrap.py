@@ -134,7 +134,7 @@ if __name__ == '__main__':
     with open('shapes/bases.txt') as f:
         bases = [eval(l) for l in f.readlines()]
 
-    bases = bases[1300:]
+    bases = bases[2130:]
     for b in bases:
         print(b)
 
