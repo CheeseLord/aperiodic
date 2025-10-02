@@ -107,7 +107,7 @@ def isRepeatingBasis(shape, basis, fundamental, useReflections=False):
 def isRepeating(shape, bases):
     for basis in bases:
         fundamental = getFundamentalWidgets(basis)
-        tiling = isRepeatingBasis(shape, basis, fundamental)
+        tiling = isRepeatingBasis(shape, basis, fundamental, useReflections=True)
 
         if tiling is None:
             continue
@@ -126,7 +126,7 @@ if __name__ == '__main__':
     import multiprocessing as mp
 
     PROCESSES = 10
-    BATCH_SIZE = 20
+    BATCH_SIZE = 1000
 
     allShapes = load('shapes/allShapes.txt')
     shapes = load('shapes/unknown.txt')
@@ -134,7 +134,7 @@ if __name__ == '__main__':
     with open('shapes/bases.txt') as f:
         bases = [eval(l) for l in f.readlines()]
 
-    #bases = bases[2130:]
+    bases = bases[:10]
     for b in bases:
         print(b)
 

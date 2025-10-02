@@ -17,7 +17,6 @@ def distance(tile):
 
 
 if __name__ == '__main__':
-    # 2, 3, 6, 7
     index = 0
     shape = load('shapes/unknown.txt')[index]
     shapeIndex = load('shapes/allShapes.txt').index(shape) + 1

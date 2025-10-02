@@ -77,12 +77,12 @@ if __name__ == '__main__':
     #wrapped = timeout_decorator.timeout(TIMEOUT, use_signals=False)(cover)
     wrapped = cover
 
-    shapes = load('shapes/unknown.txt')
+    shapes = load('shapes/unknown.txt')[-3000:]
 
     for i, shape in enumerate(shapes, start=1):
         try:
             start = time.time()
-            result = wrapped(shape, numWidgets)
+            result = wrapped(shape, numWidgets, useReflections=True)
             end = time.time()
         except timeout_decorator.timeout_decorator.TimeoutError:
             print(f'{i: 5d} timeout')
