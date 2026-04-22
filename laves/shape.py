@@ -44,11 +44,11 @@ class Shape:
 
     @property
     def canonical(self):
-        best = self
+        best = sorted(self)
         for i in range(len(self)):
-            best = min(best, self.orient((0, 0, 0), i))
+            best = min(best, sorted(self.orient(Widget(0, 0, 0), i)))
 
-        return best
+        return Shape(best)
 
     def translate(self, offset):
         return Shape([w.translate(offset) for w in self])
