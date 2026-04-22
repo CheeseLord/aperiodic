@@ -19,8 +19,11 @@ ADJACENT = np.array([
 
 @functools.total_ordering
 class Widget:
-    def __init__(self, center):
-        self.center = tuple(center)
+    def __init__(self, *center):
+        if len(center) == 1:
+            self.center = tuple(center[0])
+        else:
+            self.center = tuple(center)
 
     def __eq__(self, other):
         return self.center == other.center
