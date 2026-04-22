@@ -40,7 +40,7 @@ class Shape:
         return repr(self.widgets)
 
     def __array__(self):
-        return np.array([tuple(w) for w in self.widgets])
+        return np.array(self.widgets)
 
     @property
     def canonical(self):
