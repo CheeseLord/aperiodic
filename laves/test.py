@@ -1,19 +1,24 @@
 import itertools
 import matplotlib.pyplot as plt
 import numpy as np
+import random
 
+from generate import generateAllShapes
 from shape import Shape
 from widget import Widget, getFirstWidgets
 
 
 if __name__ == '__main__':
-    shape = Shape(getFirstWidgets(10))
+    shapes = generateAllShapes(5)
+    #shape = random.choice(shapes)
+    #shape = Shape(getFirstWidgets(10))
 
     fig = plt.figure()
-
     ax = fig.add_subplot(111, projection='3d')
-    for target in [(0, 0, 0), (6, 7, 5)]:
-        s = shape.orient(Widget(target), 0)
+
+    for i, shape in enumerate(shapes):
+        s = shape.orient(Widget((0, 0, 0)), 0, 0)
+        s = s.translate((4 * i, 0, 0))
         colors = ['rygb'[w.colorIndex] for w in s]
         points = [w.center for w in s]
 

@@ -20,3 +20,16 @@ def generateAllShapes(n):
 
     return shapes
 
+
+if __name__ == '__main__':
+    import argparse
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument('numWidgets')
+    args = parser.parse_args()
+    numWidgets = int(args.numWidgets)
+
+    for i in range(4, numWidgets + 1):
+        for shape in generateAllShapes(i):
+            shape.save('shapes/allShapes.txt')
+

@@ -46,14 +46,15 @@ class Shape:
     def canonical(self):
         best = sorted(self)
         for i in range(len(self)):
-            best = min(best, sorted(self.orient(Widget(0, 0, 0), i)))
+            for r in range(3):
+                best = min(best, sorted(self.orient(Widget(0, 0, 0), i, r)))
 
         return Shape(best)
 
     def translate(self, offset):
         return Shape([w.translate(offset) for w in self])
 
-    def orient(self, target, index):
+    def orient(self, target, index, rotation):
         widget = self.widgets[index]
 
         power = (target.colorIndex - widget.colorIndex) % 4
@@ -62,7 +63,15 @@ class Shape:
             [0, 0, -1],
             [0, 1, 0],
         ])
-        arr = np.linalg.matrix_power(m, power)
+        r = np.array([
+            [0, 1, 0],
+            [0, 0, 1],
+            [1, 0, 0],
+        ])
+        arr = np.dot(
+            np.linalg.matrix_power(r, rotation),
+            np.linalg.matrix_power(m, power),
+        )
 
         newWidgets = []
         for w in self.widgets:
