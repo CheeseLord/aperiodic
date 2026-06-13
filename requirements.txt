@@ -1,0 +1,5 @@
+matplotlib
+numpy
+PyQt5
+python-sat[aiger,approxmc,cryptosat,pblib]
+timeout_decorator
