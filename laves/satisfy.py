@@ -7,8 +7,10 @@ from shape import Shape, load
 from widget import getFirstWidgets
 
 
-def cover(shape, numWidgets, useReflections=False):
+def cover(shape, numWidgets):
     widgets = getFirstWidgets(numWidgets)
+
+    expanded = getFirstWidgets(10 * numWidgets)
 
     # Find all possible tiles containing these widgets.
     shapes = []
@@ -16,14 +18,15 @@ def cover(shape, numWidgets, useReflections=False):
     covering = defaultdict(list)
     for widget in widgets:
         for index in range(len(shape)):
-            newShape = Shape(sorted(shape.orient(widget, index)))
-            if newShape in s:
-                continue
+            for rotation in range(2):
+                newShape = Shape(sorted(shape.orient(widget, index, rotation)))
+                if newShape in s:
+                    continue
 
-            shapes.append(newShape)
-            s.add(newShape)
-            for w in newShape:
-                covering[w].append(len(shapes))
+                shapes.append(newShape)
+                s.add(newShape)
+                for w in newShape:
+                    covering[w].append(len(shapes))
 
     # Find the satisfiability constraints.
     constraints = []
@@ -74,7 +77,7 @@ if __name__ == '__main__':
     for i, shape in enumerate(shapes, start=1):
         try:
             start = time.time()
-            result = wrapped(shape, numWidgets, useReflections=True)
+            result = wrapped(shape, numWidgets)
             end = time.time()
         except timeout_decorator.timeout_decorator.TimeoutError:
             print(f'{i: 5d} timeout')

@@ -4,6 +4,10 @@ import numpy as np
 from widget import Widget
 
 
+with open('rotations.txt', 'r') as f:
+    ROTATIONS = eval(f.read())
+
+
 class Shape:
     def __init__(self, widgets):
         if len(widgets) == 0:
@@ -12,6 +16,10 @@ class Shape:
             self.widgets = [Widget(*x) for x in widgets]
         else:
             self.widgets = list(widgets)
+
+        self.neighbors = {
+            w: [x for x in w.neighbors if x in self.widgets] for w in self.widgets
+        }
 
     def __len__(self):
         return len(self.widgets)
@@ -46,7 +54,7 @@ class Shape:
     def canonical(self):
         best = sorted(self)
         for i in range(len(self)):
-            for r in range(3):
+            for r in range(2):
                 best = min(best, sorted(self.orient(Widget(0, 0, 0), i, r)))
 
         return Shape(best)
@@ -55,28 +63,20 @@ class Shape:
         return Shape([w.translate(offset) for w in self])
 
     def orient(self, target, index, rotation):
+        # FIXME: This doesn't work.
+
         widget = self.widgets[index]
 
-        power = (target.colorIndex - widget.colorIndex) % 4
-        m = np.array([
-            [1, 0, 0],
-            [0, 0, -1],
-            [0, 1, 0],
-        ])
-        r = np.array([
-            [0, 1, 0],
-            [0, 0, 1],
-            [1, 0, 0],
-        ])
-        arr = np.dot(
-            np.linalg.matrix_power(r, rotation),
-            np.linalg.matrix_power(m, power),
+        print(ROTATIONS.keys())
+
+        matrix = np.array(
+            ROTATIONS[(widget.colorIndex, target.colorIndex)][rotation]
         )
 
         newWidgets = []
         for w in self.widgets:
             center = np.array(w) - np.array(widget)
-            center = np.dot(arr, center.T).T
+            center = np.round(np.dot(matrix, center.T).T / 3).astype(int)
             center += target.center
             newWidgets.append(Widget(center))
 
