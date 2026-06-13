@@ -73,11 +73,19 @@ class Shape:
             ROTATIONS[(widget.colorIndex, target.colorIndex)][rotation]
         )
 
+        print(f"Reorienting {widget} to {target} with rotation:\n{matrix}")
+
         newWidgets = []
         for w in self.widgets:
+            print(f"    Orienting {w}")
             center = np.array(w) - np.array(widget)
-            center = np.round(np.dot(matrix, center.T).T / 3).astype(int)
+            print(f"        delta = {center} (from {widget})")
+            unscaled = np.dot(matrix, center.T).T
+            print(f"        rotates (unscaled) to: {unscaled}")
+            center = np.round(unscaled / 3).astype(int)
+            print(f"        which scales to: {center}")
             center += target.center
+            print(f"        new position: {center} (from {target})")
             newWidgets.append(Widget(center))
 
         return Shape(newWidgets)
