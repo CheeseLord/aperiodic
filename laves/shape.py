@@ -47,6 +47,9 @@ class Shape:
     def __repr__(self):
         return repr(self.widgets)
 
+    def __str__(self):
+        return '[' + ', '.join(str(w) for w in self) + ']'
+
     def __array__(self):
         return np.array(self.widgets)
 
@@ -66,8 +69,6 @@ class Shape:
         # FIXME: This doesn't work.
 
         widget = self.widgets[index]
-
-        print(ROTATIONS.keys())
 
         matrix = np.array(
             ROTATIONS[(widget.colorIndex, target.colorIndex)][rotation]
