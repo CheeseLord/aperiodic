@@ -25,6 +25,8 @@ class Widget:
         else:
             self.center = tuple(center)
 
+        self.center = tuple(int(x) for x in self.center)
+
     def __eq__(self, other):
         return self.center == other.center
 
@@ -39,6 +41,9 @@ class Widget:
 
     def __repr__(self):
         return repr(self.center)
+
+    def __str__(self):
+        return str(self.center) + ':' + 'RYGB'[self.colorIndex]
 
     def __array__(self):
         return np.array(self.center)
