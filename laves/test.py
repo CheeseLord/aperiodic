@@ -1,4 +1,5 @@
 import itertools
+import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
 import random
@@ -9,6 +10,8 @@ from widget import Widget, getFirstWidgets
 
 
 if __name__ == '__main__':
+    matplotlib.use("qtagg")
+
     #shapes = generateAllShapes(5)
     #shape = random.choice(shapes)
     shape = Shape(getFirstWidgets(200))
