@@ -3,6 +3,8 @@ import itertools
 import numpy as np
 
 
+COLOR_NAMES = 'RYGB'
+
 COLORS = [
     (0, 0, 0),  # R
     (1, 0, 1),  # Y
@@ -45,7 +47,7 @@ class Widget:
     def __str__(self):
         ret = str(self.center) + ':'
         try:
-            ret += 'RYGB'[self.colorIndex]
+            ret += COLOR_NAMES[self.colorIndex]
         except:
             ret += '?'
         return ret
