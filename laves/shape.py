@@ -84,10 +84,11 @@ class Shape:
             unscaled = np.dot(matrix, center.T).T
             print(f"        rotates (unscaled) to: {unscaled}")
             center = np.round(unscaled / 3).astype(int)
-            print(f"        which scales to: {center}")
+            print(f"        which scales to: {Widget(center)}")
             center += target.center
-            print(f"        new position: {center} (from {target})")
-            newWidgets.append(Widget(center))
+            newWidget = Widget(center)
+            print(f"        new position: {newWidget} (= {target} + delta)")
+            newWidgets.append(newWidget)
 
         return Shape(newWidgets)
 
