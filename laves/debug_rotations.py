@@ -10,7 +10,31 @@ def doTest(coords, target):
     s = Shape(coords)
     s.orient(Widget(target), 0, 0)
 
+
+# Exhaustively try all pairs + targets of the first 4 widgets. Run this with:
+#     python debug_rotations.py | grep GREPME | grep --color '.*FAIL\|$'
+if False:
+    l = getFirstWidgets(4)
+    for i in range(4):
+        for j in range(4):
+            for k in range(4):
+                if i == j:
+                    continue
+                x = l[i]
+                y = l[j]
+                z = l[k]
+                desc = "pass"
+                try:
+                    doTest([x.center, y.center], z.center)
+                except:
+                    desc = "FAIL"
+                print(f"GREPME:  doTest([{x}, {y}], {z})  {desc}")
+
+
+# Some individual test cases
 if True:
+    pass
+
     doTest([(-1,  0,  1), ( 0,  1, -1)], ( 0,  0,  0)) # (Y,G)->R: FAILS
    #doTest([(-1,  0,  1), ( 0,  1, -1)], ( 1, -1,  0)) # (Y,G)->B: FAILS
    #doTest([(-1,  0,  1), ( 0,  1, -1)], (-1,  0,  1)) # (Y,G)->Y: works
