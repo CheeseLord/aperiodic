@@ -8,8 +8,8 @@ from shape import Shape, ROTATIONS
 # You can't make a red node blue by rotating it about the origin by some
 # particular matrix, because the red node could _be_ the origin. You make it
 # blue by translating it to a blue location... but in order to preserve the
-# orientation of everything else, you have to rotate the _rest_ of the nodes by
-# a red->blue conversion matrix.
+# orientation of everything else, you have to rotate the _rest_ of the nodes
+# about the translated one by a red->blue conversion matrix.
 
 
 def nextGeneration(soFar):
