@@ -1,5 +1,9 @@
+import logging
+
 from widget import Widget, getFirstWidgets
 from shape import Shape, load
+
+logging.basicConfig(level=logging.DEBUG)
 
 def doTest(coords, target):
     print(f"Shape is:")

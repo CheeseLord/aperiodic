@@ -1,4 +1,5 @@
 import itertools
+import logging
 import numpy as np
 
 from widget import Widget
@@ -74,20 +75,22 @@ class Shape:
             ROTATIONS[(widget.colorIndex, target.colorIndex)][rotation]
         )
 
-        print(f"Reorienting {widget} to {target} with rotation:\n{matrix}")
+        logging.debug(f"Reorienting {widget} to {target} with "
+                f"rotation:\n{matrix}")
 
         newWidgets = []
         for w in self.widgets:
-            print(f"    Orienting {w}")
+            logging.debug(f"    Orienting {w}")
             center = np.array(w) - np.array(widget)
-            print(f"        delta = {center} (from {widget})")
+            logging.debug(f"        delta = {center} (from {widget})")
             unscaled = np.dot(matrix, center.T).T
-            print(f"        rotates (unscaled) to: {unscaled}")
+            logging.debug(f"        rotates (unscaled) to: {unscaled}")
             center = np.round(unscaled / 3).astype(int)
-            print(f"        which scales to: {Widget(center)}")
+            logging.debug(f"        which scales to: {Widget(center)}")
             center += target.center
             newWidget = Widget(center)
-            print(f"        new position: {newWidget} (= {target} + delta)")
+            logging.debug(f"        new position: {newWidget} (= {target} + "
+                    "delta)")
             newWidgets.append(newWidget)
 
         return Shape(newWidgets)
