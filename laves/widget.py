@@ -43,7 +43,12 @@ class Widget:
         return repr(self.center)
 
     def __str__(self):
-        return str(self.center) + ':' + 'RYGB'[self.colorIndex]
+        ret = str(self.center) + ':'
+        try:
+            ret += 'RYGB'[self.colorIndex]
+        except:
+            ret += '?'
+        return ret
 
     def __array__(self):
         return np.array(self.center)
