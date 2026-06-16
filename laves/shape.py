@@ -47,9 +47,6 @@ class Shape:
     def __repr__(self):
         return repr(self.widgets)
 
-    def __str__(self):
-        return '[' + ', '.join(str(w) for w in self) + ']'
-
     def __array__(self):
         return np.array(self.widgets)
 
@@ -80,6 +77,9 @@ class Shape:
             newWidgets.append(Widget(center))
 
         return Shape(newWidgets)
+
+    def colorize(self):
+        return '[' + ', '.join(w.colorize() for w in self) + ']'
 
     def save(self, path):
         with open(path, 'a') as f:

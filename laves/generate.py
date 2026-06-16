@@ -29,7 +29,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
     numWidgets = int(args.numWidgets)
 
-    for i in range(4, numWidgets + 1):
+    for i in range(3, numWidgets + 1):
         for shape in generateAllShapes(i):
             shape.save('shapes/allShapes.txt')
 

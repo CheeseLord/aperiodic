@@ -43,17 +43,6 @@ class Widget:
     def __repr__(self):
         return repr(self.center)
 
-    def __str__(self):
-        try:
-            color = [
-                colorama.Fore.RED,
-                colorama.Fore.YELLOW,
-                colorama.Fore.GREEN,
-                colorama.Fore.BLUE,
-            ][self.colorIndex]
-            return f'{color}{self.center}{colorama.Fore.RESET}'
-        except:
-            return str(self.center)
 
     def __array__(self):
         return np.array(self.center)
@@ -75,6 +64,18 @@ class Widget:
 
     def translate(self, offset):
         return Widget(tuple(np.array(self.center) + offset))
+
+    def colorize(self):
+        try:
+            color = [
+                colorama.Fore.RED,
+                colorama.Fore.YELLOW,
+                colorama.Fore.GREEN,
+                colorama.Fore.BLUE,
+            ][self.colorIndex]
+            return f'{color}{self.center}{colorama.Fore.RESET}'
+        except:
+            return str(self.center)
 
 
 def getFirstWidgets(n):
