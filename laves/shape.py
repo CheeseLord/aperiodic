@@ -85,7 +85,7 @@ class Shape:
             logging.debug(f"        delta = {center} (from {widget})")
             unscaled = np.dot(matrix, center.T).T
             logging.debug(f"        rotates (unscaled) to: {unscaled}")
-            center = np.round(unscaled / 3).astype(int)
+            center = np.round(unscaled).astype(int)
             logging.debug(f"        which scales to: {Widget(center)}")
             center += target.center
             newWidget = Widget(center)
