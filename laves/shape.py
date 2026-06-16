@@ -66,8 +66,6 @@ class Shape:
         return Shape([w.translate(offset) for w in self])
 
     def orient(self, target, index, rotation):
-        # FIXME: This doesn't work.
-
         widget = self.widgets[index]
 
         matrix = np.array(

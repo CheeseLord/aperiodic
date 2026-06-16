@@ -1,3 +1,4 @@
+import colorama
 import functools
 import itertools
 import numpy as np
@@ -43,12 +44,16 @@ class Widget:
         return repr(self.center)
 
     def __str__(self):
-        ret = str(self.center) + ':'
         try:
-            ret += 'RYGB'[self.colorIndex]
+            color = [
+                colorama.Fore.RED,
+                colorama.Fore.YELLOW,
+                colorama.Fore.GREEN,
+                colorama.Fore.BLUE,
+            ][self.colorIndex]
+            return f'{color}{self.center}{colorama.Fore.RESET}'
         except:
-            ret += '?'
-        return ret
+            return str(self.center)
 
     def __array__(self):
         return np.array(self.center)
