@@ -88,7 +88,7 @@ if __name__ == '__main__':
                 f'shapes/working/invalid-satisfy-{numWidgets}.txt', 'a'
             ) as f:
                 f.write(f'{shape}\n')
-            print(f'{i: 5d} invalid')
+            print(f'{i: 5d} {"~" * 30} invalid')
             continue
 
         print(f'{i: 5d} finished ({end - start:g} seconds)')
