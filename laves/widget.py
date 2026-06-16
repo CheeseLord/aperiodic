@@ -75,7 +75,7 @@ class Widget:
             ][self.colorIndex]
             return f'{color}{self.center}{colorama.Fore.RESET}'
         except:
-            return str(self.center)
+            return f'{colorama.Back.CYAN}{self.center}{colorama.Back.RESET}'
 
 
 def getFirstWidgets(n):
