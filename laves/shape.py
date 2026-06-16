@@ -77,7 +77,7 @@ class Shape:
         newWidgets = []
         for w in self.widgets:
             center = np.array(w) - np.array(widget)
-            center = np.round(np.dot(matrix, center.T).T / 3).astype(int)
+            center = np.round(np.dot(matrix, center.T).T).astype(int)
             center += target.center
             newWidgets.append(Widget(center))
 
