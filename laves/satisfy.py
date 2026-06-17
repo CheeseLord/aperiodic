@@ -10,8 +10,6 @@ from widget import getFirstWidgets
 def cover(shape, numWidgets):
     widgets = getFirstWidgets(numWidgets)
 
-    expanded = getFirstWidgets(10 * numWidgets)
-
     # Find all possible tiles containing these widgets.
     shapes = []
     s = set()
