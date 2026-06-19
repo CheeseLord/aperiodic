@@ -120,7 +120,7 @@ if __name__ == '__main__':
     import multiprocessing as mp
 
     PROCESSES = 8
-    BATCH_SIZE = 50
+    BATCH_SIZE = 20
 
     allShapes = load('shapes/allShapes.txt')
     shapes = load('shapes/unknown.txt')
@@ -128,7 +128,7 @@ if __name__ == '__main__':
     with open('bases.txt') as f:
         bases = [eval(l) for l in f.readlines()]
 
-    bases = bases[100: 120]
+    bases = bases[:10]
     for b in bases:
         print(b)
 
