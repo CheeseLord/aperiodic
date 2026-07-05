@@ -23,8 +23,8 @@ def getFundamentalWidgets(basis):
     for center in possible:
         arr = np.array(center)
         for other in centers:
-            coeffs = np.linalg.solve(basis, arr - other)
-            if np.allclose(coeffs - np.round(coeffs), 0):
+            coeffs = np.linalg.solve(np.array(basis).T, arr - other)
+            if np.allclose(coeffs, np.round(coeffs)):
                 break
         else:
             centers.append(center)

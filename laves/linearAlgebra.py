@@ -31,6 +31,12 @@ def reduce3D(basis):
             v3 -= m23 * v2
 
 
+def round_(x):
+    # Python's default rounding can cause infinte loops.
+    decimal.getcontext().rounding = decimal.ROUND_HALF_DOWN
+    return int(decimal.Decimal(x).to_integral_value())
+
+
 def makeCanonical(basis):
     reduced = np.array(reduce3D(basis))
 
@@ -44,12 +50,6 @@ def makeCanonical(basis):
             equivalent.append(sorted(newBasis))
 
     return min(equivalent)
-
-
-def round_(x):
-    # Python's default rounding can cause infinte loops.
-    decimal.getcontext().rounding = decimal.ROUND_HALF_DOWN
-    return int(decimal.Decimal(x).to_integral_value())
 
 
 def generateLattices(det):
